@@ -42,6 +42,30 @@
 
         <div class="container">
             <h2>강좌 게시판</h2>
+            <div>총 건수 : <span th:text="${#lists.size(boards)}"></span></div>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">번호</th>
+                        <th scope="col">제목</th>
+                        <th scope="col">작성자</th>
+                        <th scope="col">등록일</th>
+                        <th scope="col">조회수</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="board : ${boards}">
+                        <th scope="row" th:text="${board.id}">1</th>
+                        <td th:text="${board.title}">Mark</td>
+                        <td>배주현</td>
+                        <td>2020.11.18</td>
+                        <td>0</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="text-right">
+                <button type="button" class="btn btn-secondary">글쓰기</button>
+            </div>
         </div>
 
         <!-- Optional JavaScript; choose one of the two! -->
