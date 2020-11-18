@@ -52,7 +52,7 @@
             </form>
             <table class="table table-striped">
                 <thead>
-                    <tr>
+                    <tr class="text-center">
                         <th scope="col">번호</th>
                         <th scope="col">제목</th>
                         <th scope="col">작성자</th>
@@ -61,10 +61,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="board : ${boards}">
+                    <tr th:each="board : ${boards}" class="text-center">
                         <th scope="row" th:text="${board.id}">1</th>
-                        <td><a th:text="${board.title}" th:href="@{/board/form(id=${board.id})}">Mark</a></td>
-                        <td>배주현</td>
+                        <td class="text-left"><a th:text="${board.title}" th:href="@{/board/form(id=${board.id})}">Mark</a></td>
+                        <td th:text="${board.user.username}">배주현</td>
                         <td>2020.11.18</td>
                         <td>0</td>
                     </tr>

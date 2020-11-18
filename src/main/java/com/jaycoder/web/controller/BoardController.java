@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.jaycoder.web.model.Board;
 import com.jaycoder.web.repository.BoardRepository;
+import com.jaycoder.web.service.BoardService;
 import com.jaycoder.web.validator.BoardValidator;
 
 @Controller
@@ -26,12 +28,16 @@ public class BoardController  {
 		@Autowired
 		private BoardValidator boardValidator;
 		
+		@Autowired
+		private BoardService boardService;
+		
 		@GetMapping("/list")
 		public String list(Model model, @PageableDefault(size = 5) Pageable pageable, 
 				@RequestParam(required = false, defaultValue = "") String searchText) {
-			// boards.getPageable().getPageNumber(); // 현재 페이지 번호 
-//				Page<Board> boards = boardRespository.findAll(pageable);
-				Page<Board> boards = boardRespository.findByTitleContainingOrContentContaining(searchText, searchText, pageable);
+			//  boards.getPageable().getPageNumber(); // 현재 페이지 번호 
+			// 	Page<Board> boards = boardRespository.findAll(pageable);
+//				Page<Board> boards = boardRespository.findByTitleContainingOrContentContaining(searchText, searchText, pageable);
+				Page<Board> boards = boardRespository.findByTitleContainingOrContentContainingOrderByCreatedateDesc(searchText, searchText, pageable);
 				int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
 				int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
 				model.addAttribute("startPage", startPage);
@@ -53,13 +59,15 @@ public class BoardController  {
 		}
 		
 		@PostMapping("/form")
-	  public String submit(@Valid Board board, BindingResult bindingResult) {
+	  public String submit(@Valid Board board, BindingResult bindingResult, Authentication authentication) {
 				//System.err.println("bindingResult:"+bindingResult.hasErrors());
 			  boardValidator.validate(board, bindingResult);
 				if (bindingResult.hasErrors()) {
 						return "board/form";
 				}			
-				boardRespository.save(board);
+				String username = authentication.getName();
+				boardService.save(username,board);
+				//boardRespository.save(board);
 		    return "redirect:/board/list";
 	  }
 }
