@@ -21,7 +21,7 @@ public class Role {
 		private String name;
 
 		@ManyToMany(mappedBy = "Roles")
-		@JsonIgnore
+		@JsonIgnore // 재귀적 호출 방지 - Roles 호출시  이 Roles를 가지는 사용자 정보는 skip 한다.
 		private List<User> users;
 		
 }

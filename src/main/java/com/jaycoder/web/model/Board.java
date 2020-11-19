@@ -26,9 +26,9 @@ public class Board {
 		@Size(min = 2, max = 30, message = "제목은 2자 이상 30자 이하입니다.")
 		private String title;
 		private String content;
-		@ManyToOne
+		@ManyToOne // 게시글은 ManyToOne
 		@JoinColumn(name = "user_id")
-		@JsonIgnore
+		@JsonIgnore // 재귀적 호출 방지 - Board 호출시  이 게시글이 가지는 사용자 정보는 skip 한다.
 		private User user;
 		@CreationTimestamp
 		private Timestamp createdate;
