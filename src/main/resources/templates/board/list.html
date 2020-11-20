@@ -40,8 +40,25 @@
             </div> -->
         </nav>
 
+        <!--
+              <td><c:choose>
+                  <c:when test="${count > pageSize}">  ex) count= 11, pageSize=10 
+                  <c:out
+                  value="${count - pageSize*(pageIndex-1) - idx.count +1}" />  11,10,9,8..........
+              </c:when>
+              <c:otherwise>
+                <c:out value="${count  - idx.count +1}" />
+              </c:otherwise>
+            </c:choose>
+          </td>
+
+          
+          <th scope="row" th:if="${boards.totalElements > 5}" th:text="${boards.totalElements} - 5*(${param.page} -1) - ${index.count} + 1" >1</th>  
+          <th scope="row" th:unless="${boards.totalElements > 5" th:text="${boards.totalElements} - ${index.count} + 1 "></th>
+        -->
+
         <div class="container">
-            <h2>강좌 게시판</h2>
+            <h2>강좌 게시판</h2> <!--   ${boards.totalElements} - (5 *  ((${param.page} + 1) - 1)) - ${index.count}   -->
             <div>총 건수 : <span th:text="${boards.totalElements}"></span></div>
             <form class="form-inline d-flex justify-content-end" method="GET" th:action="@{/board/list}">
                 <div class="form-group mx-sm-3 mb-2">
@@ -50,26 +67,29 @@
                 </div>
                 <button type="submit" class="btn btn-light mb-2">검색</button>
             </form>
-            <table class="table table-striped">
-                <thead>
-                    <tr class="text-center">
-                        <th scope="col">번호</th>
-                        <th scope="col">제목</th>
-                        <th scope="col">작성자</th>
-                        <th scope="col">등록일</th>
-                        <th scope="col">조회수</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="board : ${boards}" class="text-center">
-                        <th scope="row" th:text="${board.id}">1</th>
-                        <td class="text-left"><a th:text="${board.title}" th:href="@{/board/form(id=${board.id})}">Mark</a></td>
-                        <td th:text="${board.user.username}">배주현</td>
-                        <td>2020.11.18</td>
-                        <td>0</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="bg-light  text-dark">
+                <table class="table  ">
+                    <thead class="thead-light">
+                        <tr class="text-center">
+                            <th scope="col">번호</th>
+                            <th scope="col">제목</th>
+                            <th scope="col">작성자</th>
+                            <th scope="col">등록일</th>
+                            <th scope="col">조회수</th>
+                        </tr>
+                    </thead>
+                    <tbody>                                                                                                  
+                        <tr th:each="board, index : ${boards}" class="text-center">     
+                            <th scope="row" th:text="${board.id}">1</th>   
+                            <td class="text-left"><a th:text="${board.title}" th:href="@{/board/{id}(id=${board.id})}">Mark</a></td>
+                            <td th:text="${board.user.username}">배주현</td>
+                            <td th:text="${#dates.format(board.createdate, 'yyyy.MM.dd')}">2020.11.18</td> <!--  ${#dates.format(board.createdate, 'yyyy.MMM.dd')}  -->
+                            <td>0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <nav aria-label="Page navigation example">
                 <ul class="pagination justify-content-center">
                     <li class="page-item" th:classappend="${1 == boards.pageable.pageNumber+1} ? 'disabled'">

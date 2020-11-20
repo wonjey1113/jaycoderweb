@@ -1,5 +1,7 @@
 package com.jaycoder.web.service;
 
+import java.sql.Timestamp;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +20,11 @@ public class BoardService {
 		private UserRepository userRepository;
 		
 		public Board save(String username, Board board) {
-			  System.err.println("username:"+username);
+			  //System.err.println("username:"+username);
 				User user = userRepository.findByUsername(username);
 				board.setUser(user);
+			  Timestamp createdate = new Timestamp(System.currentTimeMillis());
+				board.setCreatedate(createdate);
 				return boardRepository.save(board);
 		}
 }
