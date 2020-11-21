@@ -12,53 +12,11 @@
     </head>
     <body>
         <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" th:replace="fragments/common :: menu('board')">
-            <!-- <a class="navbar-brand" href="#">JAYCODER</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>         
-            <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-              <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                  <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">Study</a>
-                </li>
-                <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Portfolio</a>
-                  <div class="dropdown-menu" aria-labelledby="dropdown01">
-                    <a class="dropdown-item" href="#">port-1</a>
-                    <a class="dropdown-item" href="#">port-2</a>
-                    <a class="dropdown-item" href="#">port-3</a>
-                  </div>
-                </li>
-              </ul>
-              <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-                <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-              </form>
-            </div> -->
+          <!-- Thymeleaf fragment replace Navbar -->
         </nav>
 
-        <!--
-              <td><c:choose>
-                  <c:when test="${count > pageSize}">  ex) count= 11, pageSize=10 
-                  <c:out
-                  value="${count - pageSize*(pageIndex-1) - idx.count +1}" />  11,10,9,8..........
-              </c:when>
-              <c:otherwise>
-                <c:out value="${count  - idx.count +1}" />
-              </c:otherwise>
-            </c:choose>
-          </td>
-
-          
-          <th scope="row" th:if="${boards.totalElements > 5}" th:text="${boards.totalElements} - 5*(${param.page} -1) - ${index.count} + 1" >1</th>  
-          <th scope="row" th:unless="${boards.totalElements > 5" th:text="${boards.totalElements} - ${index.count} + 1 "></th>
-        -->
-
         <div class="container">
-            <h2>강좌 게시판</h2> <!--   ${boards.totalElements} - (5 *  ((${param.page} + 1) - 1)) - ${index.count}   -->
+            <h2>강좌 게시판</h2> 
             <div>총 건수 : <span th:text="${boards.totalElements}"></span></div>
             <form class="form-inline d-flex justify-content-end" method="GET" th:action="@{/board/list}">
                 <div class="form-group mx-sm-3 mb-2">
@@ -80,10 +38,12 @@
                     </thead>
                     <tbody>                                                                                                  
                         <tr th:each="board, index : ${boards}" class="text-center">     
-                            <th scope="row" th:text="${board.id}">1</th>   
+                            <!--th scope="row" th:text="${board.id}">1</th-->   
+                            <!--   ${전체레코드수 - 현재 페이지에 나올 목록갯수 * ( 현재 페이지 번호-1) - idx.count +1}  -->
+                            <th scope="row"  th:with="page=${#strings.isEmpty(param.page)} ? 0 : ${param.page}, pageIndex=${#numbers.formatInteger(page,3)} + 1, count=${#numbers.formatInteger(boards.totalElements,3)} - 5 *  (${pageIndex} - 1) - ${index.count} + 1" th:text="${count}">1</th>   
                             <td class="text-left"><a th:text="${board.title}" th:href="@{/board/{id}(id=${board.id})}">Mark</a></td>
                             <td th:text="${board.user.username}">배주현</td>
-                            <td th:text="${#dates.format(board.createdate, 'yyyy.MM.dd')}">2020.11.18</td> <!--  ${#dates.format(board.createdate, 'yyyy.MMM.dd')}  -->
+                            <td th:text="${#dates.format(board.createdate, 'yyyy.MM.dd')}">2020.11.18</td> 
                             <td>0</td>
                         </tr>
                     </tbody>

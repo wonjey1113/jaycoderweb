@@ -1,12 +1,17 @@
 package com.jaycoder.web.model;
 
 import java.sql.Timestamp;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -27,6 +32,7 @@ public class Board {
 		@Size(min = 2, max = 30, message = "제목은 2자 이상 30자 이하입니다.")
 		private String title;
 		
+		@Lob
 		private String content;
 		
 		@ManyToOne // 게시글은 ManyToOne
@@ -41,6 +47,9 @@ public class Board {
 				return this.user.equals(loginUser);
 		}
 		
+		@OneToMany(mappedBy = "board")
+		@OrderBy("id ASC")
+		private List<Reply> replys;		
 		
 		
 }

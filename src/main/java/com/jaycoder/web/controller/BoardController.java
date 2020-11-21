@@ -41,7 +41,7 @@ public class BoardController  {
 				@RequestParam(required = false, defaultValue = "") String searchText) {
 			//  boards.getPageable().getPageNumber(); // 현재 페이지 번호 
 			// 	Page<Board> boards = boardRespository.findAll(pageable);
-//				Page<Board> boards = boardRespository.findByTitleContainingOrContentContaining(searchText, searchText, pageable);
+			//		Page<Board> boards = boardRespository.findByTitleContainingOrContentContaining(searchText, searchText, pageable);
 				Page<Board> boards = boardRespository.findByTitleContainingOrContentContainingOrderByCreatedateDesc(searchText, searchText, pageable);
 				int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
 				int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
@@ -56,20 +56,26 @@ public class BoardController  {
 			//System.out.println("GET mappong ");
 				if(id == null) {
 						model.addAttribute("board", new Board());	
-				}else {
-					 	Object principal  =  SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-					 	UserDetails userDetails = (UserDetails) principal;
-					 	
-					 	User principalUser = new User();
-					 	principalUser.setUsername(userDetails.getUsername());
+				}else {					
 						Board board = boardRespository.findById(id).orElse(null);
-						if(!board.isSameWriter(principalUser)) {
+						if(!pagePermission(id, board)) {
 								return "board/401";
-						}
+						}				  
 						model.addAttribute("board", board);
-				}
-				
+				}				
 				return "board/form";
+		}
+		
+		private boolean pagePermission(Long id, Board board) {
+			 	Object principal  =  SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			 	UserDetails userDetails = (UserDetails) principal;					 	
+			 	User principalUser = new User();
+			 	principalUser.setUsername(userDetails.getUsername());
+				 //Board board = boardRespository.findById(id).orElse(null);
+				if(!board.isSameWriter(principalUser)) {
+						return false;
+				}			
+				return true;
 		}
 		
 		@GetMapping("/{id}")
@@ -82,13 +88,11 @@ public class BoardController  {
 		@PostMapping("/form")
 	  public String save(@Valid Board board, BindingResult bindingResult, 
 	  		Authentication authentication) {
-				//System.err.println("bindingResult:"+bindingResult.hasErrors());
 			  boardValidator.validate(board, bindingResult);
 				if (bindingResult.hasErrors()) {
 						return "board/form";
 				}			
 				String username = authentication.getName();
-				// update board set content=?, createdate=?, hit=?, title=?, user_id=? where id=?
 				boardService.save(username,board);				
 
 		    return "redirect:/board/list";
@@ -96,17 +100,10 @@ public class BoardController  {
 		
 		@DeleteMapping("/form/{id}")
 		public String delete(@PathVariable Long id) {
-			  //System.out.println("delete mappong ");
-			 	Object principal  =  SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			 	UserDetails userDetails = (UserDetails) principal;
-			 	
-			 	User principalUser = new User();
-			 	principalUser.setUsername(userDetails.getUsername());
 				Board board = boardRespository.findById(id).orElse(null);
-				if(!board.isSameWriter(principalUser)) {
+				if(!pagePermission(id, board)) {
 						return "board/401";
-				}		 	
-			 	
+				}			 	
 			  boardRespository.deleteById(id);
 			 	return "redirect:/board/list";
 		}

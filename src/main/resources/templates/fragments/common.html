@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head th:fragment="head(title)">
     <!-- Required meta tags -->
     <meta charset="utf-8" />
@@ -10,7 +11,7 @@
         integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous" />
     <link href="starter-template.css" th:href="@{/css/starter-template.css}" rel="stylesheet" />
     <title th:text="${title}">JAYCODER NET - 강좌 게시판</title>
-</head>7
+</head>
 
 <body>
     <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top" th:fragment="menu(menu)">
@@ -39,11 +40,12 @@
                     </div>
                 </li>
             </ul>
-            <a class="btn btn-outline-light my-2 mr-2 my-sm-0" th:href="@{/account/login}" 
-            sec:authorize="!isAuthenticated()">로그인</a>
-            <a class="btn btn-outline-light my-2 my-sm-0" th:href="@{/account/register}" 
-            sec:authorize="!isAuthenticated()">회원가입</a>            
-            <form class="form-inline my-2 my-lg-0" th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
+            <a class="btn btn-outline-light my-2 mr-2 my-sm-0" th:href="@{/account/login}"
+                sec:authorize="!isAuthenticated()">로그인</a>
+            <a class="btn btn-outline-light my-2 my-sm-0" th:href="@{/account/register}"
+                sec:authorize="!isAuthenticated()">회원가입</a>
+            <form class="form-inline my-2 my-lg-0" th:action="@{/logout}" method="post"
+                sec:authorize="isAuthenticated()">
                 <span class="text-white" sec:authentication="name">사용자</span>
                 <!-- <span class="text-white mx-2" sec:authentication="principal.authorities">권한</span> -->
                 <span class="text-white mx-2" sec:authorize="hasRole('ROLE_USER')">사용자</span>
