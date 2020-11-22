@@ -9,7 +9,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import org.hibernate.annotations.CreationTimestamp;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 @Entity
@@ -24,25 +23,26 @@ public class Reply {
 			
 			@ManyToOne // 댓글은 ManyToOne
 			@JoinColumn(name = "user_id")
-			@JsonIgnore // 재귀적 호출 방지 - Reply 호출시  이 게시글이 가지는 사용자 정보는 skip 한다.
+			//@JoinColumn(foreignKey = @ForeignKey(name = "FK_user"))
+			//@JsonIgnore
 			private User user;
 			
 			@ManyToOne
 			@JoinColumn(name = "board_id")		
-			private Board board;
+			//@JoinColumn(foreignKey = @ForeignKey(name = "FK_reply_board"))
+			//@JsonIgnore
+ 			private Board board ;
 			
 			@CreationTimestamp
 			private Timestamp createdate;
 			
-			public Reply() {
-
-			}
+			public Reply() {	}
 		
 			public Reply(String content, User user, Board board) {
 				this.content = content;
 				this.user = user;
 				this.board = board;
-			}
+			} 
 		
 			@Override
 			public String toString() {
