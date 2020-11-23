@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.jaycoder.web.model.Board;
 import com.jaycoder.web.model.User;
 import com.jaycoder.web.repository.BoardRepository;
+import com.jaycoder.web.repository.UserRepository;
 import com.jaycoder.web.service.BoardService;
 import com.jaycoder.web.validator.BoardValidator;
 
@@ -35,6 +36,9 @@ public class BoardController  {
 		
 		@Autowired
 		private BoardService boardService;
+		
+		@Autowired
+		private UserRepository userRepository;
 		
 		@GetMapping("/list")
 		public String list(Model model, @PageableDefault(size = 5) Pageable pageable, 
@@ -69,9 +73,9 @@ public class BoardController  {
 		private boolean pagePermission(Long id, Board board) {
 			 	Object principal  =  SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			 	UserDetails userDetails = (UserDetails) principal;					 	
-			 	User principalUser = new User();
-			 	principalUser.setUsername(userDetails.getUsername());
-				 //Board board = boardRespository.findById(id).orElse(null);
+			 	User principalUser = userRepository.findByUsername(userDetails.getUsername());
+			 	//principalUser.setUsername(userDetails.getUsername());
+				//Board board = boardRespository.findById(id).orElse(null);
 				if(!board.isSameWriter(principalUser)) {
 						return false;
 				}			

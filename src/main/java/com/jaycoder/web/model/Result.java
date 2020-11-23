@@ -5,24 +5,31 @@ public class Result {
 	
 	private String errorMessage;
 	
-	private Result(boolean valid, String errorMessage) {
+	private Integer count;
+	
+	private Result(boolean valid,  Integer count, String errorMessage) {
 		this.valid = valid;
+		this.count = count;
 		this.errorMessage = errorMessage;
 	}
 	
 	public boolean isValid() {
-		return valid;
+			return valid;
+	}
+	
+	public Integer getCount() {
+			return count;
 	}
 	
 	public String getErrorMessage() {
-		return errorMessage;
+			return errorMessage;
 	}
 	
-	public static Result ok() {
-		return new Result(true, null);
+	public static Result ok(Integer count) {
+			return new Result(true, count, null);
 	}
 	
-	public static Result fail(String errorMessage) {
-		return new Result(false, errorMessage);
+	public static Result fail(Integer count, String errorMessage) {
+			return new Result(false, count, errorMessage);
 	}
 }

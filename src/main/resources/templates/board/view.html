@@ -25,7 +25,7 @@
                     <!--h6 class="card-subtitle mb-2 text-muted" th:text="*{user.username}">Card subtitle</h6-->
                     <ul class="list-inline card-subtitle mb-2 text-muted">
                         <li class="list-inline-item" th:text="|작성자 : *{user.username}|">Lorem ipsum</li>
-                        <li class="list-inline-item" th:with="date=*{createdate}" th:text="|등록일 : ${#dates.format(date, 'yyyy.MM.dd HH:mm')}|">Phasellus iaculis</li>
+                        <li class="list-inline-item" th:with="date=*{createdate}" th:text="|등록일 : ${#temporals.format(date, 'yyyy.MM.dd HH:mm')}|">Phasellus iaculis</li>
                         <li class="list-inline-item" th:text="|조회수 : *{hit}|">Nulla volutpat</li>
                       </ul>                    
                     <p class="card-text" th:text="*{content}">Some quick example text to build on the card title and
@@ -41,16 +41,18 @@
         </form>
         
         <div class="card board-comment-articles" style="width: 100%;">
-            <div><strong>2개의 의견</strong></div>            
-                <div th:each="reply : ${board.replys}" class="card-body">
-                    <article class="article">
-                        <h5 th:text="${reply.user.username}" class="card-title">홍길동</h5>
-                        <h6 th:text="${reply.createdate}" class="card-subtitle mb-2 text-muted">2020.11.20</h6>
-                        <p th:text="${reply.content}" class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                        <a class="card-link link-modify-article" th:href="@{/api/reply/{replyid}/updateReply(replyid=${reply.id})}">수정</a>
-                        <a class="card-link link-delete-article" th:href="@{/api/board/{boardId}/replys/{replyid}(boardId=${board.id},replyid=${reply.id})}">삭제</a>                    
-                    </article>
-                </div>            
+            <div class="reply-tot-cnt">
+                <strong th:text="|${board.count_of_reply}개의 의견|">2개의 의견</strong>
+            </div>            
+            <div th:each="reply : ${board.replys}" class="card-body">
+                <article class="article">
+                    <h5 th:text="${reply.user.username}" class="card-title">Jhon Doe</h5>
+                    <h6 th:text="${reply.createdate}" class="card-subtitle mb-2 text-muted">2020.11.20</h6>
+                    <p th:text="${reply.content}" class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    <a class="card-link link-modify-article" th:href="@{/api/reply/{replyid}/updateReply(replyid=${reply.id})}">수정</a>
+                    <a class="card-link link-delete-article" th:href="@{/api/board/{boardId}/replys/{replyid}(boardId=${board.id},replyid=${reply.id})}">삭제</a>                    
+                </article>
+            </div>            
         </div>   
         <form role="form" class="reply_write" th:object="${board}" th:action="@{/api/board/{id}/replys(id=${board.id})}" method="post">
             <div class="form-group">

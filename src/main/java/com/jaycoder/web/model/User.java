@@ -3,24 +3,22 @@ package com.jaycoder.web.model;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 @JsonIgnoreProperties(value = "roles")
-public class User {
-		@Id
-		@GeneratedValue(strategy = GenerationType.IDENTITY)
-		private Long id;
+public class User extends AbstractEntity {
+
 		private String username;
 		@JsonIgnore
 		private String password;
@@ -45,30 +43,10 @@ public class User {
 		private List<Board> boards = new ArrayList<>();  // 게시글은 여러개일수 있으니 배열리스트로 설정한다.
 
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			User other = (User) obj;
-			if (username == null) {
-				if (other.username != null)
-					return false;
-			} else if (!username.equals(other.username))
-				return false;
-			return true;
+		public String toString() {
+			return "User [" + super.toString() + ", username=" + username + ", password=" + password + ", enabled=" + enabled + ", Roles=" + Roles
+					+ ", boards=" + boards + "]";
 		}
 
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((username == null) ? 0 : username.hashCode());
-			return result;
-		}
-
-		
 		
 }

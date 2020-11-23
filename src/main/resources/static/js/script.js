@@ -18,7 +18,7 @@ $(".reply_write input[type=submit]").click(function(e){
 	    dataType : "json"	      
 	  }	).done(function(data, status) {
 	      console.log(data);
-	  	  //console.log(`status : ${status}`);
+	      $(".reply-tot-cnt").html(`<strong>${data.board.count_of_reply}개의 의견</strong>`); 
 	      let replyTemplate = $("#replyTemplate").html();
 	      let template = replyTemplate.format(data.user.username, data.createdate, data.content, data.board.id ,data.id);
 	      $(".board-comment-articles").append(template);
@@ -49,6 +49,7 @@ $("a.link-delete-article").click(function(e){
     }).done(function(data, status) {
         console.log(data);
         if(data.valid){
+            $(".reply-tot-cnt").html(`<strong>${data.count}개의 의견</strong>`);
             deleteArticle.closest(".card-body").remove();
         }else{
             alert(data.errorMessage);

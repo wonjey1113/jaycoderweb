@@ -34,6 +34,7 @@ public class ApiReplyController {
 				User user = userRepository.findByUsername(username);
 				Board board = boardRepository.findById(boardId).get(); 
 				Reply  reply = new Reply(content, user, board);
+				board.addReply();
 				return replyRepository.save(reply);
 		}
 
@@ -41,13 +42,17 @@ public class ApiReplyController {
 		public Result delete(@PathVariable Long boardId, @PathVariable Long id, Authentication authentication) {
 				String username = authentication.getName();				
 				Reply reply = replyRepository.findById(id).get();
-			 	User principalUser = new User();
-			 	principalUser.setUsername(username);
+			 	User principalUser = userRepository.findByUsername(username);
+			 	//principalUser.setUsername(username);
+			 	//principalUser.setId(id);
 				if(!reply.isSameWriter(principalUser)) {
-						return Result.fail("자신의 글만 삭제 할 수 있습니다.");
+						return Result.fail(-1,"자신의 글만 삭제 할 수 있습니다.");
 				}											
-				replyRepository.deleteById(id);
-				return Result.ok();				
+				replyRepository.deleteById(id);				
+				Board board = boardRepository.getOne(boardId);
+				board.deleteReply();
+				boardRepository.save(board);
+				return Result.ok(board.getCount_of_reply());				
 		}
 		
 }
