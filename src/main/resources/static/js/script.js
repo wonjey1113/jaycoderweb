@@ -20,13 +20,41 @@ $(".reply_write input[type=submit]").click(function(e){
 	      console.log(data);
 	  	  //console.log(`status : ${status}`);
 	      let replyTemplate = $("#replyTemplate").html();
-	      let template = replyTemplate.format(data.user.username, data.createdate, data.content,data.id);
+	      let template = replyTemplate.format(data.user.username, data.createdate, data.content, data.board.id ,data.id);
 	      $(".board-comment-articles").append(template);
 	      $(".reply_write")[0].reset();
-	  }).fail(function(e) {
-	  	
-	  });
-	
+	  }).fail(function(e){
+	    
+	  });	
+});
+
+$("a.link-delete-article").click(function(e){
+    e.preventDefault();
+    var deleteArticle = $(this);
+    let url = deleteArticle.attr("href");
+    console.log(`url : ${url}`);
+    
+    let token = $("meta[name='_csrf']").attr("content");
+    let header = $("meta[name='_csrf_header']").attr("content"); 
+    
+    $.ajax({
+        beforeSend: function(xhr){
+            xhr.setRequestHeader(header, token);
+        },
+        type : "delete",
+        url : url,
+        dataType : "json"
+    }).fail(function(xhr, status) {
+        console.log("error"); 	
+    }).done(function(data, status) {
+        console.log(data);
+        if(data.valid){
+            deleteArticle.closest(".card-body").remove();
+        }else{
+            alert(data.errorMessage);
+        }
+    });
+    
 });
 
 String.prototype.format = function() {

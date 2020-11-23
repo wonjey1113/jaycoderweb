@@ -41,20 +41,16 @@
         </form>
         
         <div class="card board-comment-articles" style="width: 100%;">
-            <div><strong>2개의 의견</strong></div>
-            <article class="article">
+            <div><strong>2개의 의견</strong></div>            
                 <div th:each="reply : ${board.replys}" class="card-body">
-                    <h5 th:text="${reply.user.username}" class="card-title">홍길동</h5>
-                    <h6 th:text="${reply.createdate}" class="card-subtitle mb-2 text-muted">2020.11.20</h6>
-                    <p th:text="${reply.content}" class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a class="card-link link-modify-article" th:href="@{/api/reply/{replyid}/updateReply(replyid=${reply.id})}">수정</a>
-                    <a class="card-link link-delete-article" th:href="@{/api/board/{replyid}/reply(replyid=${reply.id})}">삭제</a>                    
-                    <!--form  th:action="@{'/api/board/'+${reply.board.Id}+'/reply/'+${reply.id}}" method="POST">
-                        <input type="hidden" name="_method" value="DELETE">
-                        <button type="submit" class="btn btn-danger btn-sm">삭제</button>
-                    </form-->
-                </div>
-            </article>
+                    <article class="article">
+                        <h5 th:text="${reply.user.username}" class="card-title">홍길동</h5>
+                        <h6 th:text="${reply.createdate}" class="card-subtitle mb-2 text-muted">2020.11.20</h6>
+                        <p th:text="${reply.content}" class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                        <a class="card-link link-modify-article" th:href="@{/api/reply/{replyid}/updateReply(replyid=${reply.id})}">수정</a>
+                        <a class="card-link link-delete-article" th:href="@{/api/board/{boardId}/replys/{replyid}(boardId=${board.id},replyid=${reply.id})}">삭제</a>                    
+                    </article>
+                </div>            
         </div>   
         <form role="form" class="reply_write" th:object="${board}" th:action="@{/api/board/{id}/replys(id=${board.id})}" method="post">
             <div class="form-group">
@@ -65,19 +61,15 @@
      </div>
 
      <script type="text/template" id="replyTemplate">
-        <article class="article">
-            <div  class="card-body">
+        <div  class="card-body">
+            <article class="article">
                 <h5  class="card-title">{0}</h5>
                 <h6  class="card-subtitle mb-2 text-muted">{1}</h6>
                 <p  class="card-text">{2}</p>
                 <a class="card-link link-modify-article" href="/api/reply/{3}/updateReply">수정</a>
-                <a class="card-link link-delete-article" href="/api/board/{3}/reply">삭제</a>
-                 <!--form class="delete-answer-form" action="/api/board/{3}/reply/4" method="POST">                   
-                    <input type="hidden" name="_method" value="DELETE">
-                     <button type="submit" class="btn btn-danger btn-sm">삭제</button>
-                </form-->
-              </div>            
-        </article>
+                <a class="card-link link-delete-article" href="/api/board/{3}/replys/{4}">삭제</a>
+            </article>
+        </div>            
     </script>
 
     <div th:include="fragments/common :: foot">

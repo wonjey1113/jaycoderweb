@@ -45,7 +45,7 @@
             <!--   ${전체레코드수 - 현재 페이지에 나올 목록갯수 * ( 현재 페이지 번호-1) - idx.count +1}  -->
             <th scope="row" th:with="page=${#strings.isEmpty(param.page)} ? 0 : ${param.page}, pageIndex=${#numbers.formatInteger(page,3)} + 1, count=${#numbers.formatInteger(boards.totalElements,3)} - 5 *  (${pageIndex} - 1) - ${index.count} + 1" th:text="${count}">1</th>   
             <td class="text-left"><a th:text="${board.title}" th:href="@{/board/{id}(id=${board.id})}">Mark</a></td>
-            <td th:text="${board.user.username}">배주현</td>
+            <td th:text="${board.user.username}">Jhon Dou</td>
             <td th:text="${#dates.format(board.createdate, 'yyyy.MM.dd')}">2020.11.18</td> 
             <td>0</td>
             </tr>
