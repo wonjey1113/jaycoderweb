@@ -3,35 +3,39 @@ package com.jaycoder.web.model;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
-@JsonIgnoreProperties(value = "roles")
+//@JsonIgnoreProperties(value = "role")
 public class User extends AbstractEntity {
 
 		private String username;
+		
 		@JsonIgnore
 		private String password;
+		
+		private String email;
+		
 		@JsonIgnore
 		private Boolean enabled;
 		
-		@ManyToMany
-		@JoinTable(
-		  name = "user_role", 
-		  joinColumns = @JoinColumn(name="user_id"), 
-		  inverseJoinColumns = @JoinColumn(name = "role_id"))
-		@JsonIgnore
-		private List<Role> Roles = new ArrayList<>();
+//		@ManyToMany
+//		@JoinTable(
+//		  name = "user_role", 
+//		  joinColumns = @JoinColumn(name="user_id"), 
+//		  inverseJoinColumns = @JoinColumn(name = "role_id"))
+//		@JsonIgnore
+//		private List<Role> Roles = new ArrayList<Role>();
+		@Enumerated(EnumType.STRING)
+	  private RoleType role; // Enum을 쓰는게 좋다. // Admin, user, manager 
 		
 		// 사용자 조회할때 게시글도 나오게 할수 있다.
 		// 사용자 입장에서는 OneToMany
@@ -44,8 +48,9 @@ public class User extends AbstractEntity {
 
 		@Override
 		public String toString() {
-			return "User [" + super.toString() + ", username=" + username + ", password=" + password + ", enabled=" + enabled + ", Roles=" + Roles
-					+ ", boards=" + boards + "]";
+//			return "User [" + super.toString() + ", username=" + username + ", password=" + password + ", email=" + email + ", enabled=" + enabled + ", role=" + role
+//					+ ", boards=" + boards + "]";
+				return username;
 		}
 
 		

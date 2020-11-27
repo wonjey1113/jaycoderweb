@@ -17,7 +17,7 @@ import com.jaycoder.web.repository.BoardRepository;
 
 @RestController
 @RequestMapping("/api")
-class ApiBoardController {
+class BoardApiController {
 
 	@Autowired
   private BoardRepository repository;

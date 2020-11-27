@@ -1,12 +1,17 @@
 package com.jaycoder.web.controller;
 
+import java.security.Principal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.jaycoder.web.model.Board;
 import com.jaycoder.web.model.Reply;
 import com.jaycoder.web.model.Result;
@@ -14,10 +19,11 @@ import com.jaycoder.web.model.User;
 import com.jaycoder.web.repository.BoardRepository;
 import com.jaycoder.web.repository.ReplyRepository;
 import com.jaycoder.web.repository.UserRepository;
+import com.jaycoder.web.service.ReplyService;
 
 @RestController  
 @RequestMapping("/api/board/{boardId}/replys")
-public class ApiReplyController {
+public class ReplyApiController {
 	
 		@Autowired
 		private ReplyRepository replyRepository;
@@ -28,14 +34,38 @@ public class ApiReplyController {
 		@Autowired
 		private BoardRepository boardRepository;
 		
+		@Autowired
+		private ReplyService replyService ;
+		
 		@PostMapping("")
-		public Reply create(@PathVariable Long boardId, String content, Authentication authentication) {
+		public Reply create(@PathVariable Long boardId, String content, Authentication authentication, Principal principal) {
 				String username = authentication.getName();
+//				System.out.println("username : "+username);
 				User user = userRepository.findByUsername(username);
 				Board board = boardRepository.findById(boardId).get(); 
 				Reply  reply = new Reply(content, user, board);
 				board.addReply();
 				return replyRepository.save(reply);
+		}
+						
+		@GetMapping("/{id}")
+		public Reply updateForm(@PathVariable Long boardId, @PathVariable Long id, Authentication auth) {	
+			 	User principalUser = userRepository.findByUsername(auth.getName());
+			 	Reply reply = replyRepository.findById(id).get();
+				if(!reply.isSameWriter(principalUser)) {
+						return null;
+				}
+				return replyRepository.findById(id).get();
+		}
+		
+		@PutMapping("/{id}")
+		public Reply update(@PathVariable Long boardId, @PathVariable Long id, String content,  Authentication auth) {
+			 	User principalUser = userRepository.findByUsername(auth.getName());
+			 	Reply reply = replyRepository.findById(id).get();
+				if(!reply.isSameWriter(principalUser)) {
+						return null;
+				}				
+				return replyService.update(boardId, id, content); 		
 		}
 
 		@DeleteMapping("/{id}")

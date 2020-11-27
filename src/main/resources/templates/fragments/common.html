@@ -49,12 +49,12 @@
             <a class="btn btn-outline-light my-2 my-sm-0" th:href="@{/account/register}"
                 sec:authorize="!isAuthenticated()">회원가입</a>
             <form class="form-inline my-2 my-lg-0" th:action="@{/logout}" method="post"
-                sec:authorize="isAuthenticated()">
+                sec:authorize="isAuthenticated()"><!--  principal --><!--  name (toString) -->
                 <span class="text-white" sec:authentication="name">사용자</span>
-                <!-- <span class="text-white mx-2" sec:authentication="principal.authorities">권한</span> -->
                 <span class="text-white mx-2" sec:authorize="hasRole('ROLE_USER')">사용자</span>
                 <span class="text-white mx-2" sec:authorize="hasRole('ROLE_ADMIN')">관리자</span>
-                <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Logout</button>
+                <button class="btn btn-outline-light mr-2 my-2 my-sm-0" type="submit">로그아웃</button>
+                <a class="btn btn-outline-light  my-2 my-sm-0" th:href="@{/account/update}" >회원정보</a>
             </form>
         </div>
     </nav>
@@ -64,8 +64,12 @@
         <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
         <script src="https://code.jquery.com/jquery-3.5.1.min.js" ></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
-        <script type="text/javascript" src="/js/script.js"  crossorigin="anonymous"></script>
+       
    </footer>    
+   <section th:fragment="custom-script">
+        <script src="/js/script.js"  crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+   </section>
 </body>
 
 </html>

@@ -45,19 +45,19 @@
                 <strong th:text="|${board.count_of_reply}개의 의견|">2개의 의견</strong>
             </div>            
             <div th:each="reply : ${board.replys}" class="card-body">
-                <article class="article">
+                <article class="article"> <!--    -->
                     <h5 th:text="${reply.user.username}" class="card-title">Jhon Doe</h5>
-                    <h6 th:text="${reply.createdate}" class="card-subtitle mb-2 text-muted">2020.11.20</h6>
-                    <p th:text="${reply.content}" class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a class="card-link link-modify-article" th:href="@{/api/reply/{replyid}/updateReply(replyid=${reply.id})}">수정</a>
-                    <a class="card-link link-delete-article" th:href="@{/api/board/{boardId}/replys/{replyid}(boardId=${board.id},replyid=${reply.id})}">삭제</a>                    
+                    <h6 th:text="${#temporals.format(reply.createdate, 'yyy-MM-dd HH:mm')}" class="card-subtitle mb-2 text-muted">2020.11.20</h6>
+                    <p th:utext="${#strings.replace(reply.content, T(System).getProperty('line.separator'), '&lt;br /&gt;')}" class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    <a th:if="${#authentication.name} == ${reply.user.username}" class="card-link link-modify-article" th:href="@{/api/board/{boardId}/replys/{replyid}(boardId=${board.id},replyid=${reply.id})}">수정</a>
+                    <a th:if="${#authentication.name} == ${reply.user.username}" class="card-link link-delete-article" th:href="@{/api/board/{boardId}/replys/{replyid}(boardId=${board.id},replyid=${reply.id})}">삭제</a>                    
                 </article>
             </div>            
         </div>   
         <form role="form" class="reply_write" th:object="${board}" th:action="@{/api/board/{id}/replys(id=${board.id})}" method="post">
             <div class="form-group">
                 <textarea class="form-control mb-1" id="content" name="content" placeholder="댓글을 입력해주세요." rows="3"></textarea>
-                <input type="submit" class="btn btn-success btn-lg btn-block" value="답변하기" />
+                <input type="submit" id="reply-submit" class="btn btn-success btn-lg btn-block disabled" value="답변하기" />
               </div>              
         </form>    
      </div>
@@ -68,14 +68,29 @@
                 <h5  class="card-title">{0}</h5>
                 <h6  class="card-subtitle mb-2 text-muted">{1}</h6>
                 <p  class="card-text">{2}</p>
-                <a class="card-link link-modify-article" href="/api/reply/{3}/updateReply">수정</a>
-                <a class="card-link link-delete-article" href="/api/board/{3}/replys/{4}">삭제</a>
+                <a class="card-link link-modify-article" onclick="updateReply(event);"  href="/api/board/{3}/replys/{4}">수정</a>
+                <!--a class="card-link link-delete-article" th:href="@{/api/board/{3}/replys/{4}}" href="/api/board/{3}/replys/{4}">삭제</a-->
+                <a class="card-link link-delete-article" onclick="deleteReply(event);"  href="/api/board/{3}/replys/{4}">삭제</a>
             </article>
         </div>            
     </script>
 
+    <script type="text/template" id="replyUpdateTemplate">
+            <div class="article1">                                                                                       
+                <form role="form" class="reply_update" th:object="${board}" th:action="@{/api/board/{0}/replys/{1}}" th:method="put">
+                    <div class="form-group">
+                        <textarea class="form-control mb-1" id="content" name="content" placeholder="댓글을 입력해주세요."   rows="3">{2}</textarea>
+                        <input type="button" onclick="updateReplySubmit(event)" class="btn btn-outline-success btn-lg btn-block" value="답변수정하기" />                        
+                    </div>              
+                </form>    
+            </div>
+    </script>    
+
     <div th:include="fragments/common :: foot">
         <!-- jQuery and Bootstrap Bundle (includes Popper), other js   -->
+    </div>
+    <div th:include="fragments/common :: custom-script">
+        <!-- customer javascript -->
     </div>
 
 </body>

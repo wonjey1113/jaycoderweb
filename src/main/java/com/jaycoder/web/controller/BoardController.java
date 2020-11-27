@@ -1,13 +1,13 @@
 package com.jaycoder.web.controller;
 
 import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import com.jaycoder.web.model.Board;
 import com.jaycoder.web.model.User;
 import com.jaycoder.web.repository.BoardRepository;
@@ -71,11 +72,10 @@ public class BoardController  {
 		}
 		
 		private boolean pagePermission(Long id, Board board) {
-			 	Object principal  =  SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			 	UserDetails userDetails = (UserDetails) principal;					 	
-			 	User principalUser = userRepository.findByUsername(userDetails.getUsername());
-			 	//principalUser.setUsername(userDetails.getUsername());
-				//Board board = boardRespository.findById(id).orElse(null);
+//			 	Object principal  =  SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//			 	UserDetails userDetails = (UserDetails) principal;
+			 	String  getname = SecurityContextHolder.getContext().getAuthentication().getName();	 						 				  
+			 	User principalUser = userRepository.findByUsername(getname);			
 				if(!board.isSameWriter(principalUser)) {
 						return false;
 				}			
