@@ -1,7 +1,41 @@
 body {
     padding-top: 5rem;
 }
+
 .starter-template {
     padding: 3rem 1.5rem;
     text-align: center;
+}
+
+
+.reply-body {
+    padding: 0.625rem 1.25rem 0.625rem 1.25rem;
+
+}
+
+.board-header {
+    /* background-color: burlywood; */
+    /* border: 1px solid #cccccc; */
+    /* border-bottom: 1px solid #cccccc; */
+    border-radius: 0.5em;
+    padding: 0.5em 0.5em 0.1em 0.5em;
+
+}
+
+thead.thead-normal {
+    border-top: 2px solid rgb(218, 217, 217)
+}
+
+.invalid-content {
+    /* background-color: blueviolet; */
+    border-radius: 0.3em;
+    border: 1px solid red;
+}
+
+.invalid-feedback-c {
+    /* display: none; */
+    width: 100%;
+    margin-top: -1em;
+    font-size: 80%;
+    color: #dc3545;
 }

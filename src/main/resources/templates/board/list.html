@@ -22,15 +22,26 @@
     <h2>강좌 게시판</h2>
     <div>총 건수 : <span th:text="${boards.totalElements}"></span></div>
     <form class="form-inline d-flex justify-content-end" method="GET" th:action="@{/board/list}">
-      <div class="form-group mx-sm-3 mb-2">
-        <label for="searchText" class="sr-only">검색</label>
-        <input type="text" class="form-control" name="searchText" th:value="${param.searchText}" id="searchText" />
+      <div class="form-row">
+        <div class="col">
+          <select class="form-control" th:with="field=${#httpServletRequest.getParameter('searchField')}"  name="searchField">
+            <option th:selected="(${field}  == 'title')"  value="title">제목</option>
+            <option th:selected="(${field}  == 'content')"  value="content">내용</option>
+            <option th:selected="(${field}  == 'titleAndcontent')" value="titleAndcontent">제목+내용</option>
+            <option th:selected="(${field} == 'writer')" value="writer">작성자</option>
+          </select>
+        </div>
+        <div class="col">
+          <input type="text" class="form-control" name="searchText" th:value="${param.searchText}" id="searchText" />
+        </div>
+        <div class="col">
+          <button type="submit" class="btn btn-outline-dark mb-2">검색</button>
+        </div>
       </div>
-      <button type="submit" class="btn btn-light mb-2">검색</button>
     </form>
-    <div class="bg-light  text-dark">
-      <table class="table  ">
-        <thead class="thead-light">
+    <div class="table-responsive">
+      <table class="table  table-striped">
+        <thead class="thead-normal">
           <tr class="text-center">
             <th scope="col">번호</th>
             <th scope="col">제목</th>
@@ -43,29 +54,66 @@
           <tr th:each="board, index : ${boards}" class="text-center">
             <!--th scope="row" th:text="${board.id}">1</th-->
             <!--   ${전체레코드수 - 현재 페이지에 나올 목록갯수 * ( 현재 페이지 번호-1) - idx.count +1}  -->
-            <th scope="row" th:with="page=${#strings.isEmpty(param.page)} ? 0 : ${param.page}, pageIndex=${#numbers.formatInteger(page,3)} + 1, count=${#numbers.formatInteger(boards.totalElements,3)} - 5 *  (${pageIndex} - 1) - ${index.count} + 1" th:text="${count}">1</th>   
-            <td class="text-left"><a th:text="${board.title}" th:href="@{/board/{id}(id=${board.id})}">Mark</a><span th:text="|(${board.count_of_reply})|">(0)</span></td>
+            <th scope="row" th:with="page=${#strings.isEmpty(param.page)} ? 0 : ${param.page}, pageIndex=${#numbers.formatInteger(page,3)} , count=${#numbers.formatInteger(boards.totalElements,3)} - 10 *  (${pageIndex} - 1) - ${index.count} + 1" th:text="${count}">1</th>   
+            <td class="text-left"><a class="text-info" th:text="${board.title}" th:href="@{/board/{id}(id=${board.id})}">Mark</a><span th:text="|(${board.count_of_reply})|">(0)</span></td>
             <td th:text="${board.user.username}">Jhon Dou</td>
             <td th:text="${#temporals.format(board.createdate, 'yyyy.MM.dd')}">2020.11.18</td> 
             <td>0</td>
             </tr>
+            <tr th:if="${boards.totalElements == 0}">
+              <td colspan="5" class="text-center">게시글이 없습니다.</td>
+            </tr>
           </tbody>
       </table>
     </div>
-
-    <nav aria-label="Page navigation example">
+    <!--nav aria-label="Page navigation example">
         <ul class="pagination justify-content-center">
             <li class="page-item" th:classappend="${1 == boards.pageable.pageNumber+1} ? 'disabled'">
-                <a class="page-link" href="#" th:href="@{/board/list(page=${boards.pageable.pageNumber - 1},searchText=${param.searchText})}" tabindex="-1" aria-disabled="true">Previous</a>
+                <a class="page-link" href="#" th:href="@{/board/list(page=${boards.pageable.pageNumber - 1},searchField=${param.searchField},searchText=${param.searchText})}" tabindex="-1" aria-disabled="true">Previous</a>
             </li>
-            <li class="page-item" th:classappend="${i == boards.pageable.pageNumber+1} ? 'disabled'" th:each="i: ${#numbers.sequence(startPage, endPage)}"><a class="page-link" href="#" th:href="@{/board/list(page=${i - 1},searchText=${param.searchText})}" th:text="${i}">1</a></li>
+            <li class="page-item" th:classappend="${i == boards.pageable.pageNumber+1} ? 'disabled'" th:each="i: ${#numbers.sequence(startPage, endPage)}"><a class="page-link" href="#" th:href="@{/board/list(page=${i - 1},searchField=${param.searchField},searchText=${param.searchText})}" th:text="${i}">1</a></li>
             <li class="page-item" th:classappend="${boards.totalPages == boards.pageable.pageNumber+1} ? 'disabled'">
-                <a class="page-link" href="#" th:href="@{/board/list(page=${boards.pageable.pageNumber + 1},searchText=${param.searchText})}">Next</a>
+                <a class="page-link" href="#" th:href="@{/board/list(page=${boards.pageable.pageNumber + 1},searchField=${param.searchField},searchText=${param.searchText})}">Next</a>
             </li>
         </ul>
-    </nav>
+    </nav-->
+    <nav style="text-align: center;">
+      <ul class="pagination justify-content-center"
+          th:with="start=${T(Math).floor(boards.number/10)*10 + 1},
+                      last=(${start + 9 < boards.totalPages ? start + 9 : boards.totalPages})">
+          <li class="page-item">
+              <a class="page-link" th:href="@{/board/list(page=1,searchField=${param.searchField},searchText=${param.searchText})}" aria-label="First">
+                  <span aria-hidden="true">First</span>
+              </a>
+          </li>
+  
+          <li class="page-item" th:classappend="${boards.first} ? 'disabled'">
+              <a class="page-link"  th:href="${boards.first} ? '#' :@{/board/list(page=${boards.number},searchField=${param.searchField},searchText=${param.searchText})}" aria-label="Previous">
+                  <span aria-hidden="true">&lt;</span>
+              </a>
+          </li>
+  
+          <li class="page-item" th:each="page: ${#numbers.sequence(start, last)}" 
+            th:classappend="${page == boards.number + 1} ? 'active'">
+              <a class="page-link"  th:text="${page}" th:href="@{/board/list(page=${page},searchField=${param.searchField},searchText=${param.searchText})}"></a>
+              <span th:if="${page == (boards.number + 1)}" class="sr-only">(current)</span>
+          </li>
+  
+          <li class="page-item" th:classappend="${boards.last} ? 'disabled'">
+              <a class="page-link"  th:href="${boards.last} ? '#' : @{/board/list(page=${boards.number + 2},searchField=${param.searchField},searchText=${param.searchText})}" aria-label="Next">
+                  <span aria-hidden="true">&gt;</span>
+              </a>
+          </li>
+  
+          <li class="page-item">
+              <a class="page-link"  th:href="@{/board/list(page=${boards.totalPages},searchField=${param.searchField},searchText=${param.searchText})}" aria-label="Last">
+                  <span aria-hidden="true">Last</span>
+              </a>
+          </li>
+      </ul>
+  </nav>    
     <div class="text-right">
-        <a class="btn btn-secondary" th:href="@{/board/form}">글쓰기</a>
+        <a class="btn btn-primary" th:href="@{/board/form}">글쓰기</a>
     </div>
   </div>
 

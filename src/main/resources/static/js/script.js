@@ -3,7 +3,22 @@
  */ 
 $(".reply_write input[type=submit]").click(function(e){
 	e.preventDefault();
-	let queryString = $(".reply_write").serialize();
+  let content = $(".reply_write").find("textarea[name='content']").val();
+  console.log(`content : ${content}`);
+  $(".invalid").addClass("d-none");
+  if(content == '<p><br></p>'){
+    content = "";
+  }
+  if( !content ){ 
+        //$(".note-status-output").removeClass("d-none");
+        $(".note-status-output").html(
+            '<div class="alert alert-danger">' +
+            '내용을 입력해주세요.' +
+            '</div>'          
+        );
+      return;
+  }
+  let queryString = $(".reply_write").serialize();
 	let url = $(".reply_write").attr("action");
 	console.log(`post url : ${url}`);
 	$.ajax({
@@ -15,10 +30,12 @@ $(".reply_write input[type=submit]").click(function(e){
 	      $(".reply-tot-cnt").html(`<strong>${data.board.count_of_reply}개의 의견</strong>`); 
 	      let replyTemplate = $("#replyTemplate").html();
 	      let createdate = moment(data.createdate).format('YYYY-MM-DD HH:mm');
-	      let content = data.content.replace('\r\n','<br>');
-	      let template = replyTemplate.format(data.user.username, createdate, content, data.board.id ,data.id);
-	      $(".board-comment-articles").append(template);
-	      $(".reply_write")[0].reset();
+	     // let content = data.content.replace('\r\n','<br>');
+	      let template = replyTemplate.format(data.user.username, createdate, data.content, data.board.id ,data.id);
+        $(".board-comment-articles").append(template);
+        $(".note-status-output").html('');
+        $(".reply_write")[0].reset();
+        $('.summernote').summernote('reset');
 	  }).fail(function(e){
 	    
 	  });	
@@ -65,8 +82,23 @@ function onReplyUpdate(_this){
             //let content = data.content.replace('\r\n','<br>');
             let template = replyTemplate.format(data.board.id,data.id, data.content);
             updateArticle.closest("div").append(template);
+            updateArticle.closest("div").addClass("alert-light");
             updateArticle.html("닫기");
+            $('.summernote').summernote({
+                  toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough', 'superscript', 'subscript']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height']]
+                  ],              
+                  lang: 'ko-KR',
+                  tabsize: 2,
+                  height: 100
+            });            
         }else{
+            updateArticle.closest("div").removeClass("alert-light");
             updateArticle.html("수정");
             updateArticle.closest("div").find(".article1").remove();
         }      
@@ -149,9 +181,9 @@ function updateReplySubmit(e){
 
         _this.closest(".card-body").find(".article").find(".card-subtitle").html(data.modifydate);
         _this.closest(".card-body").find(".article").find(".card-text").html(content);
-        _this.closest(".card-body").find(".article").find(".link-modify-article").html("수정");  
+        _this.closest(".card-body").find(".article").find(".link-modify-article").html("수정");          
+        _this.closest(".card-body").removeClass("alert-light");        
         _this.closest(".article1").remove();
-
 //        updateReply(obj);
     }).fail(function(e){
       
