@@ -1,8 +1,15 @@
 package com.jaycoder.web.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 //import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
@@ -12,6 +19,7 @@ import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -19,7 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,12 +35,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.jaycoder.web.model.Attach;
 import com.jaycoder.web.model.Board;
 import com.jaycoder.web.model.User;
 import com.jaycoder.web.repository.BoardRepository;
 import com.jaycoder.web.repository.UserRepository;
+import com.jaycoder.web.service.AttachService;
 import com.jaycoder.web.service.BoardService;
+import com.jaycoder.web.util.FileUtils;
 import com.jaycoder.web.validator.BoardValidator;
 
 
@@ -53,6 +65,12 @@ public class BoardController  {
 		@Autowired
 		private UserRepository userRepository;
 		
+		@Autowired
+		private AttachService attachService;
+		
+		@Autowired
+	 ResourceLoader resourceLoader;		
+		
 		/**
 		 * 게시글 목록
 		 *
@@ -63,45 +81,11 @@ public class BoardController  {
 		@GetMapping("/list")
 		public String list(Model model, @PageableDefault Pageable pageable, 
 				@RequestParam(required = false, defaultValue = "") String searchField,  @RequestParam(required = false, defaultValue = "") String searchText) {
-			//  boards.getPageable().getPageNumber(); // 현재 페이지 번호 
-			// 	Page<Board> boards = boardRespository.findAll(pageable);
-			//		Page<Board> boards = boardRespository.findByTitleContainingOrContentContaining(searchText, searchText, pageable);
-//			  Page<Board> boards = null;
-//				int pageNumber = 0;
-//				int pageTotal = 0;
-//				if(searchField.equals("title")) {
-//						System.out.println("title search..");
-//						boards = boardService.searchTitle(searchText,  pageable);
-//						pageNumber = boards.getPageable().getPageNumber();
-//						pageTotal = boards.getTotalPages();
-//				}
-//				else if(searchField.equals("content")) {
-//							System.out.println("content search..");
-//							boards = boardService.searchContent(searchText,  pageable);
-//				}
-//				else if(searchField.equals("titleAndcontent")) {
-//							System.out.println("title and content search..");
-//							//boards = boardRespository.findByTitleContainingOrContentContainingOrderByCreatedateDesc(searchText, searchText, pageable);
-//							boards = boardService.searchTitleAndContent(searchText, pageable);
-//				}
-//				else if(searchField.equals("writer")) {
-//							System.out.println("writer search..");
-////							User user = userRepository.findByUsername(searchText);
-////							Long user_id = user.getId();
-//							boards = boardService.searchWrite(searchText,  pageable);
-//				}
-//				else {
-//							boards = boardService.searchTitle(searchText,  pageable);
-//				}
+
 			  Page<Board> boards = boardService.getBoardList(searchField, searchText, pageable);
 				int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
 				int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
 				if(endPage == 0) endPage = 1;
-//				System.out.println("startPage : "+startPage);
-//				System.out.println("endPage : "+endPage);
-//				int page = (pageable.getPageNumber() == 0) ? 0 : (pageable.getPageNumber() - 1); // page는 index 처럼 0부터 시작
-//				System.out.println("pageNumber : "+boards.getNumber());
-//				System.out.println("page : "+page);
 
 				model.addAttribute("startPage", startPage);
 				model.addAttribute("endPage", endPage);
@@ -122,6 +106,81 @@ public class BoardController  {
 				}				
 				return "board/form";
 		}
+		
+		/**/
+		@GetMapping("/attach/{id}/download")
+		private void fileDown(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) throws Exception{
+      
+      request.setCharacterEncoding("UTF-8");
+      Attach fileVO = attachService.fileDetailService(id);
+      
+      //파일 업로드된 경로 
+      try{
+		  		String today = attachService.getModifydate(id);
+				  String uploadPath = System.getProperty("user.dir") + "/upload/"+today;
+				  String uploadFile = attachService.getFilename(id);
+
+          String fileUrl = uploadPath;
+          fileUrl += "/";
+          String savePath = fileUrl;
+          String fileName = uploadFile;
+          
+          //실제 내보낼 파일명 
+          String oriFileName = fileVO.getOriginal_name();
+          InputStream in = null;
+          OutputStream os = null;
+          File file = null;
+          boolean skip = false;
+          String client = "";
+          
+          //파일을 읽어 스트림에 담기  
+          try{
+              file = new File(savePath, fileName);
+              in = new FileInputStream(file);
+          } catch (FileNotFoundException fe) {
+              skip = true;
+          }
+          
+          client = request.getHeader("User-Agent");
+          
+          //파일 다운로드 헤더 지정 
+          response.reset();
+          response.setContentType("application/octet-stream");
+          response.setHeader("Content-Description", "JSP Generated Data");
+          
+          if (!skip) {
+              // IE
+              if (client.indexOf("MSIE") != -1) {
+                  response.setHeader("Content-Disposition", "attachment; filename=\""
+                          + java.net.URLEncoder.encode(oriFileName, "UTF-8").replaceAll("\\+", "\\ ") + "\"");
+                  // IE 11 이상.
+              } else if (client.indexOf("Trident") != -1) {
+                  response.setHeader("Content-Disposition", "attachment; filename=\""
+                          + java.net.URLEncoder.encode(oriFileName, "UTF-8").replaceAll("\\+", "\\ ") + "\"");
+              } else {
+                  // 한글 파일명 처리
+                  response.setHeader("Content-Disposition",
+                          "attachment; filename=\"" + new String(oriFileName.getBytes("UTF-8"), "ISO8859_1") + "\"");
+                  response.setHeader("Content-Type", "application/octet-stream; charset=utf-8");
+              }
+              response.setHeader("Content-Length", "" + file.length());
+              os = response.getOutputStream();
+              byte b[] = new byte[(int) file.length()];
+              int leng = 0;
+              while ((leng = in.read(b)) > 0) {
+                  os.write(b, 0, leng);
+              }
+          } else {
+              response.setContentType("text/html;charset=UTF-8");
+              System.out.println("<script language='javascript'>alert('파일을 찾을 수 없습니다');history.back();</script>");
+          }
+          in.close();
+          os.close();
+      } catch (Exception e) {
+          System.out.println("ERROR : " + e.getMessage());
+      }
+      
+  }
 		
 		private boolean pagePermission(Long id, Board board) {
 //			 	Object principal  =  SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -173,17 +232,32 @@ public class BoardController  {
 				return "board/view";
 		}
 		
+		// @RequestParam("file") MultipartFile file
 		@PostMapping("/form")
-	  public String save(@Valid Board board, BindingResult bindingResult, 
-	  		Authentication authentication) {
+	  public String save(@Valid Board board,  MultipartFile[] uploadfile, BindingResult bindingResult, 
+	  		Authentication authentication, HttpServletRequest request) {
+			
+				
+			
+				int attach_rows = 0;
 				System.out.println("content : "+board.getContent());
 			  boardValidator.validate(board, bindingResult);
 				if (bindingResult.hasErrors()) {
 						return "board/form";
-				}			
+				}
+				
 				String username = authentication.getName();
-				boardService.save(username,board);				
+				board = boardService.save(username,board);				
 
+				// 파일 업로드 처리 로직
+				// uploadPath : C:\Users\wonje\AppData\Local\Temp\tomcat-docbase.8090.3773065005175977297
+				// String uploadPath = request.getSession().getServletContext().getRealPath("/upload/");
+				//System.out.println("uploadPath : " + uploadPath);
+				List<Attach> fileList = FileUtils.uploadFiles(uploadfile, board.getId());
+				if (CollectionUtils.isEmpty(fileList) == false) {
+						attach_rows = attachService.insertAttach(fileList);				
+				}				
+				
 		    return "redirect:/board/list";
 	  }
 		

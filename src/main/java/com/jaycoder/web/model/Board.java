@@ -1,5 +1,6 @@
 package com.jaycoder.web.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -34,6 +35,9 @@ public class Board extends AbstractEntity {
 		@JoinColumn(name = "user_id")
 		@JsonIgnore // 재귀적 호출 방지 - Board 호출시  이 게시글이 가지는 사용자 정보는 skip 한다.
 		private User user;
+
+		@OneToMany(mappedBy = "board2")  // Member 객체와 양방향 관계를 만들기위해 추가한다. (대상테이블)
+		private List<Attach> attachs = new ArrayList<Attach>();		
 		
 		private int hit;
 				

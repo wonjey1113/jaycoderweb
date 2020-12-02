@@ -1,103 +1,29 @@
-let index = {
-	init:function(){
-		$("#btn-save").on("click", ()=>{ 
-			this.save();
-		});
-		$("#btn-delete").on("click", ()=>{ 
-			this.deleteById();
-		});
-		$("#btn-update").on("click", ()=>{ 
-			this.update();
-		});
-		$("#btn-reply-save").on("click", ()=>{ 
-			this.replySave();
-		});							  
-	},
-	save:function(){
-		let data = {
-			_csrf: $("input[name='_csrf']").val(),
-			title: $("#title").val(),
-			content: $("#content").val()
-		};
+let fileIdx = 0; /*[- 파일 인덱스 처리용 전역 변수 -]*/
 
-		$.ajax({
-			type:"POST",
-			url:"/api/boards/save",
-			data: JSON.stringify(data), 
-			contentType: "application/json; charset=UTF-8", 
-			dataType: "json"  
-		}).done(function(resp){
-			alert("글쓰기가 완료되었습니다.");
-			location.href="/";
-		}).fail(function(error){
-			alert(JSON.stringify(error));
-		}); 
-	},
-	deleteById:function(){
-		let id = $("#id").text();
-	
-		$.ajax({
-			type:"DELETE",
-			url:"/api/board/"+id,
-			dataType: "json"  
-		}).done(function(resp){
-			alert("삭제가 완료되었습니다.");
-			location.href="/";
-		}).fail(function(error){
-			alert(JSON.stringify(error));
-		}); 
-	},
-	update:function(){
-		let id = $("#id").val();
-		let data = {
-			title: $("#title").val(),
-			content: $("#content").val()
-		};
+function addFile() {
 
-		$.ajax({
-			type:"PUT",
-			url:"/api/board/"+id,
-			data: JSON.stringify(data), 
-			contentType: "application/json; charset=UTF-8", 
-			dataType: "json"  
-		}).done(function(resp){
-			alert("글수정이 완료되었습니다.");
-			location.href="/";
-		}).fail(function(error){
-			alert(JSON.stringify(error));
-		}); 
-	},
-	replySave:function(){
-		let data = {
-			boardId: $("#boardId").val(),
-			content: $("#reply-content").val()
-		};
+	const fileDivs = $('div[data-name="fileDiv"]');
+	if (fileDivs.length > 2) {
+		alert('파일은 최대 세 개까지 업로드 할 수 있습니다.');
+		return false;
+	}
 
-		$.ajax({
-			type:"POST",
-			url: `/api/board/${data.boardId}/reply`,
-			data: JSON.stringify(data), 
-			contentType: "application/json; charset=UTF-8", 
-			dataType: "json"  
-		}).done(function(resp){
-			alert("댓글 작성이 완료되었습니다.");
-			location.href= `/board/${data.boardId}`;
-		}).fail(function(error){
-			alert(JSON.stringify(error));
-		}); 
-	},
-	replyDelete:function(boardId, replyId){
-		$.ajax({
-			type:"DELETE",
-			url: `/api/board/${boardId}/reply/${replyId}`,
-			dataType: "json"  
-		}).done(function(resp){
-			alert("댓글 삭제 성공.");
-			location.href= `/board/${boardId}`;
-		}).fail(function(error){
-			alert(JSON.stringify(error));
-		}); 
-	}			
+	fileIdx++;
+
+	const fileHtml = `
+		<div data-name="fileDiv" class="form-group filebox bs3-primary">
+			<label for="file_${fileIdx}" class="col-sm-2 control-label"></label>
+			<div class="col-sm-10">
+				<input type="text" class="upload-name" value="파일 찾기" readonly />
+				<label for="file_${fileIdx}" class="control-label">찾아보기</label>
+				<input type="file" name="files" id="file_${fileIdx}" class="upload-hidden" onchange="changeFilename(this)" />
+
+				<button type="button" onclick="removeFile(this)" class="btn btn-bordered btn-xs visible-xs-inline visible-sm-inline visible-md-inline visible-lg-inline">
+					<i class="fa fa-minus" aria-hidden="true"></i>
+				</button>
+			</div>
+		</div>
+	`;
+
+	$('#btnDiv').before(fileHtml);
 }
-
-index.init();

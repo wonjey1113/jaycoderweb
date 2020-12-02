@@ -16,11 +16,11 @@
     <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" th:replace="fragments/common :: menu('board')">
     </nav>
     <div class="container">
-        <h2>강좌 게시판</h2>
-        <form role="form" class="my-2" action="#" th:action="@{/board/form}" th:object="${board}" method="post">
+        <h2>강좌 게시판</h2>  <!--   -->  
+        <form role="form" class="my-2"  th:action="@{/board/form} + '?' + ${_csrf.parameterName} + '=' + ${_csrf.token}" th:object="${board}"
+             th:method="post" enctype="multipart/form-data">
             <input type="hidden" th:field="*{id}" />
             <div class="form-group">
-
                 <input type="text" class="form-control" th:classappend="${#fields.hasErrors('title')} ?  'is-invalid'" id="title" th:field="*{title}" />
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">제목 에러 메세지.</div>
                 </div>
@@ -29,7 +29,12 @@
                     <!--div class="invalid-feedback" th:if="${#fields.hasErrors('content')}" th:errors="*{content}">내용 에러 메세지.</div-->
                 </div>
                 <div class="invalid-feedback-c"  th:if="${#fields.hasErrors('content')}" th:errors="*{content}" >내용 에러 메세지.</div>
-                <div class="text-right">
+                <!-- 첨부파일 영역 -->
+                <div class="form-group">
+                    <label for="upload-files">&bull;첨부파일은 다중 선택이 가능하고, 5MB 까지만 가능합니다.</label>
+                    <input type="file" name="uploadfile" class="form-control-file" id="upload-files" multiple>
+                </div>              
+                <div class="text-right" id="btnDiv">
                     <a class="btn btn-secondary" th:href="@{/board/list}">취소</a>
                     <button type="submit"  class="btn btn-primary">확인</button>
                 </div>                            
@@ -42,6 +47,7 @@
               height: 300
             });
         </script>
+        <script src="/js/board.js"></script>
         <div th:include="fragments/common :: foot"></div>
 
 </body>

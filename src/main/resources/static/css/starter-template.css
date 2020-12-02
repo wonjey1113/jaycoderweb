@@ -39,3 +39,16 @@ thead.thead-normal {
     font-size: 80%;
     color: #dc3545;
 }
+
+.files-list {
+    counter-increment: list-number;
+}
+
+.files-list::before {
+    content: "파일#"counter(list-number);
+    font-weight: bold;
+    line-height: 1.0cm;
+    margin-top: 0.2cm;
+    padding-left: 0.2cm;
+    padding-right: 0.2cm;
+}
