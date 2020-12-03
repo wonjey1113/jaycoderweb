@@ -16,9 +16,9 @@
     <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" th:replace="fragments/common :: menu('board')">
     </nav>
     <div class="container">
-        <h2>강좌 게시판</h2>  <!--   -->  
-        <form role="form" class="my-2"  th:action="@{/board/form} + '?' + ${_csrf.parameterName} + '=' + ${_csrf.token}" th:object="${board}"
-             th:method="post" enctype="multipart/form-data">
+        <h2>강좌 게시판</h2> <!--   -->
+        <form role="form" class="my-2" th:action="@{/board/form} + '?' + ${_csrf.parameterName} + '=' + ${_csrf.token}"
+            th:object="${board}" th:method="post" enctype="multipart/form-data" >
             <input type="hidden" th:field="*{id}" />
             <div class="form-group">
                 <input type="text" class="form-control" th:classappend="${#fields.hasErrors('title')} ?  'is-invalid'" id="title" th:field="*{title}" />
@@ -29,10 +29,24 @@
                     <!--div class="invalid-feedback" th:if="${#fields.hasErrors('content')}" th:errors="*{content}">내용 에러 메세지.</div-->
                 </div>
                 <div class="invalid-feedback-c"  th:if="${#fields.hasErrors('content')}" th:errors="*{content}" >내용 에러 메세지.</div>
+                <!--  첨부 파일 관리  -->
+                <div th:if="${#arrays.length(board.attachs) > 0}" class="form-group  d-flex flex-fill flex-wrap mt-1">
+                    <ul th:each="attach : ${board.attachs}" class="list-group  list-group-horizontal-sm  files-list">
+                        <li class="list-group-item"><span th:text="${attach.original_name}">file name</span></li>
+                        <li  class="list-group-item"> 
+                            <a href="#" th:attr="onclick=|insertImage('${attach.save_name}','${#temporals.format(attach.modifieddate, 'yyMMdd')}')|"   class="link-file-add text-info" >본문에 추가</a>
+                        </li>                
+                        <li  class="list-group-item">
+                            <a th:href="@{/board/attach/{id}/download(id=${attach.id})}"  class="link-file-del text-danger">삭제</a>
+                        </li>                                        
+                    </ul>
+                </div>            
                 <!-- 첨부파일 영역 -->
-                <div class="form-group">
+                <div class="form-group custom-file">
                     <label for="upload-files">&bull;첨부파일은 다중 선택이 가능하고, 5MB 까지만 가능합니다.</label>
-                    <input type="file" name="uploadfile" class="form-control-file" id="upload-files" multiple>
+                    <input type="file" name="uploadfile" class="custom-file-input" id="upload-files"  multiple>
+                    <label class="custom-file-label" for="upload-files" data-browse="파일찾기">파일을 선택해 주세요.</label>
+                    <div class="note-status-output d-none">첨부파일 사이즈는 5MB 이내로 등록 가능합니다.</div>
                 </div>              
                 <div class="text-right" id="btnDiv">
                     <a class="btn btn-secondary" th:href="@{/board/list}">취소</a>

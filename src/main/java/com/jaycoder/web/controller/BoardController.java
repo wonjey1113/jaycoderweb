@@ -234,8 +234,8 @@ public class BoardController  {
 		
 		// @RequestParam("file") MultipartFile file
 		@PostMapping("/form")
-	  public String save(@Valid Board board,  MultipartFile[] uploadfile, BindingResult bindingResult, 
-	  		Authentication authentication, HttpServletRequest request) {
+	  public String save(@Valid Board board,  BindingResult bindingResult, 
+	  		Authentication authentication, MultipartFile[] uploadfile) {
 			
 				
 			

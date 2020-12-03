@@ -58,7 +58,7 @@
             <td class="text-left"><a class="text-info" th:text="${board.title}" th:href="@{/board/{id}(id=${board.id})}">Mark</a><span th:text="|(${board.count_of_reply})|">(0)</span></td>
             <td th:text="${board.user.username}">Jhon Dou</td>
             <td th:text="${#temporals.format(board.createdate, 'yyyy.MM.dd')}">2020.11.18</td> 
-            <td>0</td>
+            <td th:text="${board.hit}">0</td>
             </tr>
             <tr th:if="${boards.totalElements == 0}">
               <td colspan="5" class="text-center">게시글이 없습니다.</td>

@@ -1,6 +1,7 @@
 package com.jaycoder.web.model;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -40,5 +41,11 @@ public class Attach extends AbstractEntity {
 		/* 생성 날짜  createdate  - AbstractEntity 상속으로 제외 */
 		
 		/* 갱신 날짜 modifieddate; - AbstractEntity 상속으로 제외 */
+		
+		public String getUploadImagePath() {
+				if(save_name == null || modifieddate == null) return null;
+				String datedir = modifieddate.format(DateTimeFormatter.ofPattern("yyMMdd"));
+				return "/upload/"+datedir+"/" + save_name;
+		}		
 		
 }

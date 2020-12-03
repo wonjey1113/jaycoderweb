@@ -58,4 +58,6 @@ public class Board extends AbstractEntity {
 			return this.user.equals(loginUser);
 		}		
 		
+		
+
 }

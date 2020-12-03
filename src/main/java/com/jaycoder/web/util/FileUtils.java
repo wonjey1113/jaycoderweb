@@ -2,6 +2,8 @@ package com.jaycoder.web.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -10,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FilenameUtils;
+import org.hibernate.internal.build.AllowSysOut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,7 +37,7 @@ public class FileUtils {
 		//private final String uploadPath = Paths.get("C:", "develop", "upload", today).toString();
 	  private final static String uploadPath = System.getProperty("user.dir") + "/upload/"+today;
 	 	// System.getProperty("user.dir")
-		
+    
 	
 		/**
 		 * 서버에 생성할 파일명을 처리할 랜덤 문자열 반환
@@ -56,6 +59,11 @@ public class FileUtils {
 			//String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
 			//String uploadPath = path+ today;
 	//		String uploadPath = path;
+			// G:\JAVA\eclipse09-workspace\jayCoderWeb/upload/
+		  Path path = Paths.get(System.getProperty("user.dir")+"/upload/"+today);
+		  String uploadPath1 = path.toFile().getAbsolutePath();
+		  System.out.println("uplaod/** : "+uploadPath1);
+			
 			for (MultipartFile multipartFile : files) {
 					System.out.println("--------------------------------------");
 					System.out.println("Upload File Name : " + multipartFile.getOriginalFilename());

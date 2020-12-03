@@ -35,7 +35,7 @@
                 </div>
             </div>
             <div th:if="${#arrays.length(board.attachs) > 0}" class="form-group  d-flex flex-fill flex-wrap mt-1">
-                <ul th:each="attach : ${board.attachs}" class="list-group list-group-horizontal-sm files-list">
+                <ul th:each="attach : ${board.attachs}" class="list-group  list-group-horizontal-sm  files-list">
                     <li class="list-group-item">
                         <a class="text-info" th:href="@{/board/attach/{id}/download(id=${attach.id})}"><span th:text="${attach.original_name}">file name</span></a>
                     </li>
