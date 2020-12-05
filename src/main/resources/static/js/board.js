@@ -55,10 +55,59 @@ function getfileSize(x) {
 	return (x / Math.pow(1024, e)).toFixed(2) + ' ' + s[e];
   }
 
+  /* summernote insert image url  */
 function insertImage(img, dir){
 	console.log("/upload/"+ dir + "/" + img);
 	let image_url = "/upload/"+ dir + "/" + img;
 	$('.summernote').summernote("insertImage", image_url);
+}
+
+/* 첨부파일 삭제 */
+$(".link-file-del").on("click", function(e) {
+	e.preventDefault();
+	if(confirm("[주의] 첨부된 파일이 삭제됩니다.\n\n정말로 삭제 하시겠습니까?")){
+		let _this = $(this);
+		onFileDelete(_this);
+	}
+  });
+
+  function onFileDelete(_this){ 
+
+	var deleteFile = _this;
+	let url = deleteFile.attr("href");
+	console.log(`delete url : ${url}`);
+	
+	let token = $("meta[name='_csrf']").attr("content");
+	let header = $("meta[name='_csrf_header']").attr("content"); 
+	
+	$.ajax({
+		beforeSend: function(xhr){
+			xhr.setRequestHeader(header, token);
+		},
+		type : "delete",
+		url : url,
+		dataType : "json"
+	}).fail(function(xhr, status) {
+		console.log("error");   
+	}).done(function(data, status) {
+
+		if(data.valid){
+			deleteFile.closest(".files-list").remove();
+		}else{
+			alert(data.errorMessage);
+		}
+
+	});  
+  }
+
+  function registerBoard(form) {
+
+	form.notice_yn.value = form.notice_yn.checked == false ? 'N' : 'Y';
+	form.secret_yn.value = form.secret_yn.checked == false ? 'N' : 'Y';
+
+	console.log("notice_yn : "+ form.notice_yn.value);
+	console.log("secret_yn : "+form.secret_yn.value);
+
 
 
 }

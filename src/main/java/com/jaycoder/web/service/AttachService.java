@@ -7,13 +7,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jaycoder.web.model.Attach;
+import com.jaycoder.web.model.Board;
 import com.jaycoder.web.repository.AttachRepository;
+import com.jaycoder.web.repository.BoardRepository;
+import com.jaycoder.web.util.FileUtils;
 
 @Service
 public class AttachService {
 		
 		@Autowired
 		private AttachRepository attachRepository;
+		
+		@Autowired
+		private BoardRepository boardRepository;
 
 		public Integer insertAttach(List<Attach> fileList) {
 		  int rows = 0;
@@ -41,6 +47,18 @@ public class AttachService {
 		public Attach fileDetailService(Long id) {
 
 			return attachRepository.findById(id).get();
+		}
+
+		public void deleteFiles(Long boardid) {		
+			  Board board = boardRepository.findById(boardid).get();
+				List<Attach> attachs = attachRepository.findByBoard2(board);
+				for (Attach attach : attachs) {
+						// 파일 삭제
+						FileUtils.boardFileDelete(attach.getSave_name(), attach.getFormattedYMD());				 
+				}
+				// 파일 디비 삭제
+				attachRepository.deleteFiles(boardid);
+			
 		}
 		
 		

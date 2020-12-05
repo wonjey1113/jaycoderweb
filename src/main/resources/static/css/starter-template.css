@@ -60,3 +60,7 @@ thead.thead-normal {
     border-radius: 0cm;
 
 }
+
+.table tr:nth-child(even) {
+    background: #F2F2F2;
+}

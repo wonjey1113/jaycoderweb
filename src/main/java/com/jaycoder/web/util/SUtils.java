@@ -17,5 +17,27 @@ import org.springframework.stereotype.Component;
 			double e = Math.floor(Math.log(isize) / Math.log(1024));	
 			return String.format("%.2f", (isize / Math.pow(1024, e))) + s[(int) e];
 		}
+		
+		static String getMimetype(String str) {
+			String result = str.substring(str.length()-3, str.length());		
+			String retVlue = "undefined";
+			switch (result) {
+			case "jpg":
+			case "jpe":
+			case "peg":
+			case "png":
+			case "gif":
+			case "bmp":
+				retVlue = "image";
+				break;
+			case "zip":
+				retVlue = "zip";
+				break;
+			case "txt":
+				retVlue = "text";
+				break;
+		  }
+			return retVlue;
+	}		
 	
 }

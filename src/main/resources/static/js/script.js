@@ -27,11 +27,12 @@ $(".reply_write input[type=submit]").click(function(e){
 	    data : queryString,
 	    dataType : "json"	      
 	  }	).done(function(data, status) {
-	      $(".reply-tot-cnt").html(`<strong>${data.board.count_of_reply}개의 의견</strong>`); 
+      console.log(data);
+	      $(".reply-tot-cnt").html(`<strong>${data.count_of_reply}개의 의견</strong>`); 
 	      let replyTemplate = $("#replyTemplate").html();
-	      let createdate = moment(data.createdate).format('YYYY-MM-DD HH:mm');
+	     // let createdate = moment(data.createdate).format('YYYY-MM-DD HH:mm');
 	     // let content = data.content.replace('\r\n','<br>');
-	      let template = replyTemplate.format(data.user.username, createdate, data.content, data.board.id ,data.id);
+	      let template = replyTemplate.format(data.username, data.createdate, data.content, data.boardid ,data.id);
         $(".board-comment-articles").append(template);
         $(".note-status-output").html('');
         $(".reply_write")[0].reset();
@@ -80,7 +81,7 @@ function onReplyUpdate(_this){
           if(updateArticle.html() == "수정"){
             let replyTemplate = $("#replyUpdateTemplate").html();
             //let content = data.content.replace('\r\n','<br>');
-            let template = replyTemplate.format(data.board.id,data.id, data.content);
+            let template = replyTemplate.format(data.boardid,data.id, data.content);
             updateArticle.closest("div").append(template);
             updateArticle.closest("div").addClass("alert-light");
             updateArticle.html("닫기");

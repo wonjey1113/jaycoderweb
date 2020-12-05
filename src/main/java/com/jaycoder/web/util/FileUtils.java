@@ -5,17 +5,20 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.io.FilenameUtils;
-import org.hibernate.internal.build.AllowSysOut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.jaycoder.web.exception.AttachFileException;
 import com.jaycoder.web.model.Attach;
 import com.jaycoder.web.model.Board;
@@ -38,6 +41,8 @@ public class FileUtils {
 	  private final static String uploadPath = System.getProperty("user.dir") + "/upload/"+today;
 	 	// System.getProperty("user.dir")
     
+	  /** 기본 업로드 경로  */
+	  private final static String rootUploadPath = System.getProperty("user.dir") + "/upload"; 
 	
 		/**
 		 * 서버에 생성할 파일명을 처리할 랜덤 문자열 반환
@@ -127,6 +132,17 @@ public class FileUtils {
 			return attachList;
 		}
 		
+		public static String boardFileDelete(String fileName, String dateDir ) {
+				//String dateDir =  modifydate.format(DateTimeFormatter.ofPattern("yyMMdd"));				
+				String path = rootUploadPath + File.separator + dateDir + File.separator + fileName; 
+				
+				File file = new File(path);
+				if(file.exists() == true) {
+						file.delete();
+				}
+				
+				return null;
+		}
 
 
 }

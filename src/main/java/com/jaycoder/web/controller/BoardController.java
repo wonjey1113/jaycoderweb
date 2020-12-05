@@ -236,9 +236,14 @@ public class BoardController  {
 		@PostMapping("/form")
 	  public String save(@Valid Board board,  BindingResult bindingResult, 
 	  		Authentication authentication, MultipartFile[] uploadfile) {
-			
-				
-			
+
+				if(board.getNotice_yn() == null) {
+					board.setNotice_yn("N");
+				}
+				if(board.getSecret_yn() == null) {
+					board.setSecret_yn("N");
+				}
+							
 				int attach_rows = 0;
 				System.out.println("content : "+board.getContent());
 			  boardValidator.validate(board, bindingResult);
@@ -267,6 +272,9 @@ public class BoardController  {
 				if(!pagePermission(id, board)) {
 						return "board/401";
 				}			 	
+				// 첨부파일 삭제
+				attachService.deleteFiles(id);
+				
 			  boardRespository.deleteById(id);
 			 	return "redirect:/board/list";
 		}

@@ -16,49 +16,84 @@
     <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" th:replace="fragments/common :: menu('board')">
     </nav>
     <div class="container">
-        <h2>강좌 게시판</h2> <!--   -->
-        <form role="form" class="my-2" th:action="@{/board/form} + '?' + ${_csrf.parameterName} + '=' + ${_csrf.token}"
-            th:object="${board}" th:method="post" enctype="multipart/form-data" >
-            <input type="hidden" th:field="*{id}" />
-            <div class="form-group">
-                <input type="text" class="form-control" th:classappend="${#fields.hasErrors('title')} ?  'is-invalid'" id="title" th:field="*{title}" />
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/board/list">Board</a></li>
+            <li class="breadcrumb-item active">Add</li>
+        </ol>
+        <div class="card border-light mb-3" style="max-width: 100%;">
+            <!--div class="card-header">강좌 게시판</div-->
+            <h3 class="card-header">강좌 게시판</h3>
+            <div class="card-body">
+                <!-- begin contents -->
+                <!--h2>강좌 게시판</h2-->
+                <form role="form" class="my-2"
+                    th:action="@{/board/form} + '?' + ${_csrf.parameterName} + '=' + ${_csrf.token}"
+                    th:object="${board}" th:method="post" enctype="multipart/form-data" onsubmit="return registerBoard(this)">
+                    <input type="hidden" th:field="*{id}" />
+                    <div class="form-group">
+                        <div sec:authorize="hasRole('ROLE_ADMIN')" class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" th:value="*{notice_yn}" id="notice_yn" name="notice_yn" th:checked="*{#strings.equals( notice_yn, 'Y' )}" />
+                            <label class="form-check-label" for="notice_yn">공지글 설정</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" th:value="*{secret_yn}" id="secret_yn" name="secret_yn" th:checked="*{#strings.equals( secret_yn, 'Y' )}" />
+                            <label class="form-check-label" for="secret_yn">비밀글 설정</label>
+                        </div>                                            
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" th:classappend="${#fields.hasErrors('title')} ?  'is-invalid'" 
+                    id="title" th:field="*{title}" placeholder="게시글 제목을 입력해주세요." />
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">제목 에러 메세지.</div>
                 </div>
                 <div class="form-group" th:classappend="${#fields.hasErrors('content')} ?  'invalid-content'">
                     <textarea class="form-control summernote" th:classappend="${#fields.hasErrors('content')} ?  'is-invalid'" id="content" rows="10" th:field="*{content}"></textarea>
-                    <!--div class="invalid-feedback" th:if="${#fields.hasErrors('content')}" th:errors="*{content}">내용 에러 메세지.</div-->
                 </div>
                 <div class="invalid-feedback-c"  th:if="${#fields.hasErrors('content')}" th:errors="*{content}" >내용 에러 메세지.</div>
                 <!--  첨부 파일 관리  -->
                 <div th:if="${#arrays.length(board.attachs) > 0}" class="form-group  d-flex flex-fill flex-wrap mt-1">
-                    <ul th:each="attach : ${board.attachs}" class="list-group  list-group-horizontal-sm  files-list">
+                    <ul th:each="attach : ${board.attachs}" th:with="mine=${T(com.jaycoder.web.util.SUtils).getMimetype(attach.save_name)}" class="list-group  list-group-horizontal-sm  files-list">
                         <li class="list-group-item"><span th:text="${attach.original_name}">file name</span></li>
-                        <li  class="list-group-item"> 
+                        <li  class="list-group-item" th:if="${mine == 'image'}" >
                             <a href="#" th:attr="onclick=|insertImage('${attach.save_name}','${#temporals.format(attach.modifieddate, 'yyMMdd')}')|"   class="link-file-add text-info" >본문에 추가</a>
                         </li>                
                         <li  class="list-group-item">
-                            <a th:href="@{/board/attach/{id}/download(id=${attach.id})}"  class="link-file-del text-danger">삭제</a>
+                            <a th:href="@{/api/board/attach/{id}/delete(id=${attach.id})}"   class="link-file-del text-danger">삭제</a>
                         </li>                                        
                     </ul>
                 </div>            
                 <!-- 첨부파일 영역 -->
                 <div class="form-group custom-file">
-                    <label for="upload-files">&bull;첨부파일은 다중 선택이 가능하고, 5MB 까지만 가능합니다.</label>
                     <input type="file" name="uploadfile" class="custom-file-input" id="upload-files"  multiple>
-                    <label class="custom-file-label" for="upload-files" data-browse="파일찾기">파일을 선택해 주세요.</label>
+                    <label class="custom-file-label" for="upload-files" data-browse="파일찾기">5메가 이내의 파일을 선택해 주세요.</label>
                     <div class="note-status-output d-none">첨부파일 사이즈는 5MB 이내로 등록 가능합니다.</div>
                 </div>              
-                <div class="text-right" id="btnDiv">
+                <div class="form-group text-right mt-3" id="btnDiv">
                     <a class="btn btn-secondary" th:href="@{/board/list}">취소</a>
-                    <button type="submit"  class="btn btn-primary">확인</button>
-                </div>                            
+                    <button type="submit"  class="btn btn-primary">글작성 완료</button>
+                </div>      
             </form>
+            <!-- end contents -->
+            </div>
+          </div>        
+
         </div>
         <script>
             $('.summernote').summernote({
-               lang: 'ko-KR',
-              tabsize: 2,
-              height: 300
+                placeholder: '내용을 입력해 주세요.',
+                lang: 'ko-KR',
+                tabsize: 2,
+                height: 400,
+                maximumImageFileSize: 5120*1024, // 5MB
+                callbacks:{
+                    onImageUploadError: function(msg){
+                        $(".note-status-output").html(
+                            '<div class="alert alert-danger">' +
+                            '&bull; 5MB 미만의 파일을 업로드하세요!' +
+                            '</div>'          
+                        );                        
+                    }
+                }              
             });
         </script>
         <script src="/js/board.js"></script>

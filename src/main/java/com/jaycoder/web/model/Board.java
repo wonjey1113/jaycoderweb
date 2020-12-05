@@ -2,6 +2,7 @@ package com.jaycoder.web.model;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
@@ -10,7 +11,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,10 +44,15 @@ public class Board extends AbstractEntity {
 		
 		private int hit;
 				
-		@OneToMany(mappedBy = "board")
+		@OneToMany(mappedBy = "board" )
 		@OrderBy("id ASC")
-		@JsonIgnore
+		//@JsonIgnore	
+    //@JsonBackReference
 		private List<Reply> replys;
+		
+		private String notice_yn ;
+		
+		private String secret_yn;
 
 		public void addReply() {
 				this.count_of_reply += 1;
@@ -58,6 +66,6 @@ public class Board extends AbstractEntity {
 			return this.user.equals(loginUser);
 		}		
 		
-		
+
 
 }

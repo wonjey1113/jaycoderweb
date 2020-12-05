@@ -48,4 +48,6 @@ public class Attach extends AbstractEntity {
 				return "/upload/"+datedir+"/" + save_name;
 		}		
 		
+
+		
 }

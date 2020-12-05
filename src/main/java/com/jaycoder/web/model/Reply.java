@@ -4,6 +4,9 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,8 +16,9 @@ import lombok.Setter;
 public class Reply extends AbstractEntity {
 			
 			@Lob
+//			@JsonIgnore
 			private String content;
-				
+							
 			@ManyToOne // 댓글은 ManyToOne
 			@JoinColumn(name = "user_id")
 			//@JoinColumn(foreignKey = @ForeignKey(name = "FK_user"))
@@ -24,8 +28,11 @@ public class Reply extends AbstractEntity {
 			@ManyToOne
 			@JoinColumn(name = "board_id")		
 			//@JoinColumn(foreignKey = @ForeignKey(name = "FK_reply_board"))
-			//@JsonIgnore
- 			private Board board ;
+			@JsonIgnore
+ 			private Board board;
+			
+//			private Integer count_of_reply = 0;
+			
 			
 			public Reply() {	}
 		
@@ -39,6 +46,13 @@ public class Reply extends AbstractEntity {
 					return principalUser.equals(this.user);
 			}			
 			
+//			public void addReply() {
+//				this.count_of_reply += 1;
+//			}
+//		
+//			public void deleteReply() {
+//					this.count_of_reply -= 1;
+//			}			
 			
 			
 			@Override
