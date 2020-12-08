@@ -31,6 +31,7 @@
                     th:action="@{/board/form} + '?' + ${_csrf.parameterName} + '=' + ${_csrf.token}"
                     th:object="${board}" th:method="post" enctype="multipart/form-data" onsubmit="return registerBoard(this)">
                     <input type="hidden" th:field="*{id}" />
+                    <input type="hidden" name="summernote_id" id="summernote_id" value=""/>
                     <div class="form-group">
                         <div sec:authorize="hasRole('ROLE_ADMIN')" class="form-check form-check-inline">
                             <input class="form-check-input" type="checkbox" th:value="*{notice_yn}" id="notice_yn" name="notice_yn" th:checked="*{#strings.equals( notice_yn, 'Y' )}" />
@@ -51,8 +52,8 @@
                 </div>
                 <div class="invalid-feedback-c"  th:if="${#fields.hasErrors('content')}" th:errors="*{content}" >내용 에러 메세지.</div>
                 <!--  첨부 파일 관리  -->
-                <div th:if="${#arrays.length(board.attachs) > 0}" class="form-group  d-flex flex-fill flex-wrap mt-1">
-                    <ul th:each="attach : ${board.attachs}" th:with="mine=${T(com.jaycoder.web.util.SUtils).getMimetype(attach.save_name)}" class="list-group  list-group-horizontal-sm  files-list">
+                <div  class="form-group  d-flex flex-fill flex-wrap mt-1">
+                    <ul th:each="attach : ${board.attachs}" th:with="mine=${T(com.jaycoder.web.util.SUtils).getMimetype(attach.save_name)}" class="list-group  list-group-horizontal-sm  files-list mb-1">
                         <li class="list-group-item"><span th:text="${attach.original_name}">file name</span></li>
                         <li  class="list-group-item" th:if="${mine == 'image'}" >
                             <a href="#" th:attr="onclick=|insertImage('${attach.save_name}','${#temporals.format(attach.modifieddate, 'yyMMdd')}')|"   class="link-file-add text-info" >본문에 추가</a>
@@ -61,41 +62,36 @@
                             <a th:href="@{/api/board/attach/{id}/delete(id=${attach.id})}"   class="link-file-del text-danger">삭제</a>
                         </li>                                        
                     </ul>
-                </div>            
+                    <ul th:each="attach : ${imageUpload}"  class="list-group  list-group-horizontal-sm  files-list mb-1">
+                        <li class="list-group-item"><span th:text="${attach.original_name}">file name</span></li>
+                        <li  class="list-group-item" >
+                            <a href="#" th:attr="onclick=|insertImage('${attach.save_name}','summernote_image')|"   class="link-file-add text-info" >본문에 추가</a>
+                        </li>                
+                        <li  class="list-group-item">
+                            <a th:href="@{/api/board/summernote/{id}/delete(id=${attach.id})}"   class="link-file-del text-danger">삭제</a>
+                        </li>                                        
+                    </ul>                    
+                </div>  
                 <!-- 첨부파일 영역 -->
                 <div class="form-group custom-file">
                     <input type="file" name="uploadfile" class="custom-file-input" id="upload-files"  multiple>
                     <label class="custom-file-label" for="upload-files" data-browse="파일찾기">5메가 이내의 파일을 선택해 주세요.</label>
                     <div class="note-status-output d-none">첨부파일 사이즈는 5MB 이내로 등록 가능합니다.</div>
                 </div>              
+                <div class="progress d-none">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+                  </div>                            
                 <div class="form-group text-right mt-3" id="btnDiv">
                     <a class="btn btn-secondary" th:href="@{/board/list}">취소</a>
                     <button type="submit"  class="btn btn-primary">글작성 완료</button>
                 </div>      
             </form>
+
             <!-- end contents -->
             </div>
           </div>        
 
         </div>
-        <script>
-            $('.summernote').summernote({
-                placeholder: '내용을 입력해 주세요.',
-                lang: 'ko-KR',
-                tabsize: 2,
-                height: 400,
-                maximumImageFileSize: 5120*1024, // 5MB
-                callbacks:{
-                    onImageUploadError: function(msg){
-                        $(".note-status-output").html(
-                            '<div class="alert alert-danger">' +
-                            '&bull; 5MB 미만의 파일을 업로드하세요!' +
-                            '</div>'          
-                        );                        
-                    }
-                }              
-            });
-        </script>
         <script src="/js/board.js"></script>
         <div th:include="fragments/common :: foot"></div>
 

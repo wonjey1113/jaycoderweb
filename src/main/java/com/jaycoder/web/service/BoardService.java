@@ -70,22 +70,28 @@ public class BoardService {
 
 					if(searchField.equals("title")) {
 							System.out.println("title search..");
-							return boardRepository.findByTitleContainingOrderByCreatedateDesc(searchText, pageable);
+							//return boardRepository.findByTitleContainingOrderByCreatedateDesc(searchText, pageable);
+							return boardRepository.findByGeneralList(searchText, pageable);
 					}
 					else if(searchField.equals("content")) {
 								System.out.println("content search..");
-								return boardRepository.findByContentContainingOrderByCreatedateDesc(searchText, pageable);
+								//return boardRepository.findByContentContainingOrderByCreatedateDesc(searchText, pageable);
+								return boardRepository.findByGeneralContentList(searchText, pageable);
 					}
 					else if(searchField.equals("titleAndcontent")) {
 								System.out.println("title and content search..");
-								return boardRepository.findByTitleContainingOrContentContainingOrderByCreatedateDesc(searchText, searchText, pageable);
+								//return boardRepository.findByTitleContainingOrContentContainingOrderByCreatedateDesc(searchText, searchText, pageable);
+								return boardRepository.findByGeneralTitleOrContentList(searchText, pageable);
 					}
 					else if(searchField.equals("writer")) {
 								System.out.println("writer search..");
-								return boardRepository.findByUsername(searchText, pageable);
+								//return boardRepository.findByUsername(searchText, pageable);
+								return boardRepository.findByGeneralUsername(searchText, pageable);
 					}
 					else {
-							return boardRepository.findByTitleContainingOrderByCreatedateDesc(searchText, pageable);
+						  System.out.println("기본 검색");
+							//return boardRepository.findByTitleContainingOrderByCreatedateDesc(searchText, pageable);
+						  return boardRepository.findByGeneralList(searchText, pageable);
 					}			
 			
 		}

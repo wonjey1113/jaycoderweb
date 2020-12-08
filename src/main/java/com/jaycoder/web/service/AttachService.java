@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.jaycoder.web.model.Attach;
 import com.jaycoder.web.model.Board;
+import com.jaycoder.web.model.Summernote;
 import com.jaycoder.web.repository.AttachRepository;
 import com.jaycoder.web.repository.BoardRepository;
+import com.jaycoder.web.repository.SummernoteRepository;
 import com.jaycoder.web.util.FileUtils;
 
 @Service
@@ -20,6 +22,9 @@ public class AttachService {
 		
 		@Autowired
 		private BoardRepository boardRepository;
+		
+		@Autowired
+    private SummernoteRepository summernoteRepository;
 
 		public Integer insertAttach(List<Attach> fileList) {
 		  int rows = 0;
@@ -59,6 +64,21 @@ public class AttachService {
 				// 파일 디비 삭제
 				attachRepository.deleteFiles(boardid);
 			
+		}
+
+		public void insertImage(Summernote attach) {
+			 	
+			summernoteRepository.save(attach);
+		}
+
+		public void updateSummernoteid(Long summernote_id) {
+			summernoteRepository.updateSummernoteIdx(summernote_id);
+			
+		}
+
+		public List<Summernote> summernoteFindByid(Long id) {
+
+			return summernoteRepository.findByBoard_idx(id);
 		}
 		
 		

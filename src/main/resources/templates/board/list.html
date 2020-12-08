@@ -14,6 +14,9 @@
 </head>
 
 <body>
+<div id="page" th:text="${#strings.isEmpty(param.page) ? (boards.number + 1) : param.page}" class="d-none"></div>
+<div id="searchField" th:text="${#strings.isEmpty(param.searchField) ? searchfield : param.searchField}" class="d-none"></div>
+<div id="searchText" th:text="${#strings.isEmpty(param.searchText) ? searchtext : param.searchText}" class="d-none"></div>
   <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" th:replace="fragments/common :: menu('board')">
     <!-- Thymeleaf fragment replace Navbar -->
   </nav>
@@ -29,12 +32,15 @@
         <!-- begin contents -->
         <!--h2>강좌 게시판</h2-->
         <div class="d-flex text-primary mb-2">
-          <div class="flex-grow-1"><i class="fas fa-info-circle"></i> 현재 페이지는 전체 <span th:text="${boards.totalPages}">11</span> 페이지 중에 <span class="font-weight-bold"
+          <div class="flex-grow-1"><i class="fas fa-info-circle"></i> 현재 페이지는 전체 <span th:text="${boards.totalPages}">11</span> 
+            페이지 중에서 <span class="font-weight-bold"
             th:text="${boards.number + 1}">1</span> 페이지 입니다.</div>
           <div> <i class="fas fa-list-alt"></i> 전체 게시글 : <span th:text="${boards.totalElements}"></span></div>
 
         </div>
-        <form class="form-inline d-flex justify-content-end" method="GET" th:action="@{/board/list}">
+        <form class="form-inline d-flex justify-content-end" method="GET" 
+          id="searchForm" th:action="@{/board/list}">
+          <input type="hidden" name="page" value="1" />
           <div class="form-row">
             <div class="col">
               <select class="form-control" th:with="field=${#httpServletRequest.getParameter('searchField')}"  name="searchField">
@@ -47,8 +53,9 @@
         <div class="col">
           <input type="text" class="form-control" name="searchText" th:value="${param.searchText}" id="searchText" />
         </div>
-        <div class="col">
-          <button type="submit" class="btn btn-outline-dark mb-2">검색</button>
+        <div class="col btn-group  mb-2">
+          <button th:if="${not #strings.isEmpty(param.searchText)}" type="button" data-toggle="tooltip" data-placement="top" title="검색 취소" class="btn btn-outline-dark" id="searchCancelBtn"><i class="fas fa-ban"></i></i></button>
+          <button type="submit" class="btn btn-outline-dark">검색</button>
         </div>
       </div>
     </form>
@@ -64,12 +71,15 @@
           </tr>
         </thead>
         <tbody>
-          <tr th:each="board, index : ${boards}" class="text-center">
-            <!--th scope="row" th:text="${board.id}">1</th-->
+          <tr th:each="board, index : ${boards}" class="text-center" th:with="iconrock=${#authentication.name == board.user.username}?'fa-lock-open text-success':'fa-lock text-warning'"> 
             <!--   ${전체레코드수 - 현재 페이지에 나올 목록갯수 * ( 현재 페이지 번호-1) - idx.count +1}  -->
             <th scope="row" th:with="page=${#strings.isEmpty(param.page)} ? 0 : ${param.page}, pageIndex=${#numbers.formatInteger(page,3)} , count=${#numbers.formatInteger(boards.totalElements,3)} - 10 *  (${pageIndex} - 1) - ${index.count} + 1" th:text="${count}">1</th>   
-            <td class="text-left"><a class="text-primary" th:text="${board.title}" th:href="@{/board/{id}(id=${board.id})}">Mark</a><span th:text="|(${board.count_of_reply})|">(0)</span></td>
-            <td th:text="${board.user.username}">Jhon Dou</td>
+            <td class="text-left">
+              <i class="fas"  th:classappend="${board.secret_yn} == 'Y' ?  ${iconrock} : 'fa-sticky-note text-primary'"></i>
+              <i class="fas" th:classappend="${#lists.size(board.attachs) > 0 } ? 'fa-paperclip text-success':''"></i>
+              <a class="text-primary link-list-article"  th:text="${board.title}" 
+              th:href="@{/board/{id}(id=${board.id})}">Mark</a><span th:text="|(${board.count_of_reply})|">(0)</span></td>
+            <td th:text="${board.user.username}">Jhon Dou</td><!-- board.user.username -->
             <td th:text="${#temporals.format(board.createdate, 'yyyy.MM.dd')}">2020.11.18</td> 
             <td th:text="${board.hit}">0</td>
             </tr>
@@ -131,9 +141,11 @@
 <!-- end contents -->
       </div>
     </div>    
-
+    <div th:include="fragments/common :: modal">
+      <!-- bootstrap modal    -->
+    </div>
   </div>
-
+  <script src="/js/list.js"></script>
   <div th:include="fragments/common :: foot">
     <!-- jQuery and Bootstrap Bundle (includes Popper), other js   -->
   </div>

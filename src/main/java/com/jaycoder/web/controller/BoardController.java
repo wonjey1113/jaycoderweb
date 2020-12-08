@@ -3,6 +3,7 @@ package com.jaycoder.web.controller;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -11,6 +12,7 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -35,10 +37,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.google.gson.JsonObject;
 import com.jaycoder.web.model.Attach;
 import com.jaycoder.web.model.Board;
+import com.jaycoder.web.model.Summernote;
 import com.jaycoder.web.model.User;
 import com.jaycoder.web.repository.BoardRepository;
 import com.jaycoder.web.repository.UserRepository;
@@ -96,13 +101,15 @@ public class BoardController  {
 		@GetMapping("/form")
 		public String form(Model model, @RequestParam(required = false) Long id) {
 				if(id == null) {
-						model.addAttribute("board", new Board());	
+						model.addAttribute("board", new Board());				
 				}else {					
 						Board board = boardRespository.findById(id).orElse(null);
 						if(!pagePermission(id, board)) {
 								return "board/401";
 						}				  
 						model.addAttribute("board", board);
+						List<Summernote> imageUpload = attachService.summernoteFindByid(id);
+						model.addAttribute("imageUpload", imageUpload);						
 				}				
 				return "board/form";
 		}
@@ -200,9 +207,13 @@ public class BoardController  {
 		 * @return view page
 		 * @exception none
 		 */
-		@GetMapping("/{id}")
-		public String view(@PathVariable Long id, Model model, HttpServletResponse response, HttpServletRequest request) {
+		@GetMapping("/{id}/details")
+		public String view(@PathVariable Long id,  @RequestParam(value = "page") String page,  
+				@RequestParam(value = "searchField") String searchField,  
+				@RequestParam(value = "searchText") String searchText, Model model, 
+				HttpServletResponse response, HttpServletRequest request) {
 				Board board = boardRespository.findById(id).orElse(null);
+ 
 				if(board != null) {
 					
 						// 저장된 쿠키 불러오기 
@@ -228,7 +239,13 @@ public class BoardController  {
 								boardService.updateReadCount(id);
 						}					
 				}
-				model.addAttribute("board", board);				
+				
+				model.addAttribute("board", board);
+				model.addAttribute("page", page);
+				model.addAttribute("searchField", searchField);
+				model.addAttribute("searchText", searchText);
+				
+				
 				return "board/view";
 		}
 		
@@ -243,7 +260,9 @@ public class BoardController  {
 				if(board.getSecret_yn() == null) {
 					board.setSecret_yn("N");
 				}
+				System.out.println("search_yn : "+board.getSecret_yn());
 							
+				@SuppressWarnings("unused")
 				int attach_rows = 0;
 				System.out.println("content : "+board.getContent());
 			  boardValidator.validate(board, bindingResult);
@@ -263,6 +282,11 @@ public class BoardController  {
 						attach_rows = attachService.insertAttach(fileList);				
 				}				
 				
+				// 썸머노트 이미지 업로드 문자열 처리
+				if(!board.getSummernote_id().equals(null)) {
+					 attachService.updateSummernoteid(board.getId());
+				}
+				
 		    return "redirect:/board/list";
 	  }
 		
@@ -278,6 +302,54 @@ public class BoardController  {
 			  boardRespository.deleteById(id);
 			 	return "redirect:/board/list";
 		}
+		
+		@PostMapping(value="/uploadSummernoteImageFile", produces = "application/json")
+		@ResponseBody
+		public JsonObject uploadSummernoteImageFile(@RequestParam("file") MultipartFile multipartFile) {
+			
+			JsonObject jsonObject = new JsonObject();
+			//System.out.println("uplaodSummernoteImageFile run");
+			// String uploadPath = System.getProperty("user.dir") + "/upload/"+today;
+//			LocalDate currentDate = LocalDate.now();
+//			String nowDate = currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+					
+			String fileRoot = System.getProperty("user.dir") + "/upload/summernote_image/";	//저장될 외부 파일 경로
+			System.out.println("fileRoot : "+fileRoot);
+			String originalFileName = multipartFile.getOriginalFilename();	//오리지날 파일명
+			Long size = multipartFile.getSize();
+			String extension = originalFileName.substring(originalFileName.lastIndexOf("."));	//파일 확장자
+					
+			String savedFileName = UUID.randomUUID() + extension;	//저장될 파일 명
+			
+			File targetFile = new File(fileRoot + savedFileName);	
+			
+			try {
+				InputStream fileStream = multipartFile.getInputStream();
+				org.apache.commons.io.FileUtils.copyInputStreamToFile(fileStream, targetFile);	//파일 저장
+				jsonObject.addProperty("url", "/upload/summernote_image/"+savedFileName);
+//				jsonObject.addProperty("uploadOImage", originalFileName);
+//				jsonObject.addProperty("uploadSImage", savedFileName);
+//				jsonObject.addProperty("uploadSize", size);
+//				jsonObject.addProperty("uploadDate", nowDate);
+				jsonObject.addProperty("responseCode", "success");
+				
+				/* 파일 정보 저장 */
+				Summernote attach = new Summernote();
+				attach.setBoard_idx(0l);
+				attach.setOriginal_name(originalFileName);
+				attach.setSave_name(savedFileName);
+				attach.setSize(size);				
+				attachService.insertImage(attach);
+					
+			} catch (IOException e) {
+				 org.apache.commons.io.FileUtils.deleteQuietly(targetFile);	//저장된 파일 삭제
+				jsonObject.addProperty("responseCode", "error");
+				e.printStackTrace();
+			}
+			
+			return jsonObject;
+		}		
+		
 		
 }
 

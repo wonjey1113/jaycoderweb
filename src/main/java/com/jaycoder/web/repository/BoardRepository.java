@@ -34,4 +34,20 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 		@Query(value = "SELECT * FROM board WHERE user_id = (SELECT id FROM user WHERE username = :username) order by createdate desc", nativeQuery = true)
 		Page<Board> findByUsername(@Param("username") String username, Pageable pageable);
 		
+		// 일반글 기본(제목) 검색 
+		@Query(value = "SELECT * FROM board WHERE notice_yn = 'N' and title like %:keyword% order by createdate desc ", nativeQuery = true)
+		Page<Board> findByGeneralList(@Param("keyword") String keyword, Pageable pageable);
+		
+		// 일반글 내용 검색 
+		@Query(value = "SELECT * FROM board WHERE notice_yn = 'N' and content like %:keyword% order by createdate desc ", nativeQuery = true)
+		Page<Board> findByGeneralContentList(@Param("keyword") String keyword, Pageable pageable);		
+		
+		// 일반글 제목+내용 감색
+		@Query(value = "SELECT * FROM board WHERE notice_yn = 'N' and title like %:keyword% or content like %:keyword% order by createdate desc ", nativeQuery = true)
+		Page<Board> findByGeneralTitleOrContentList(@Param("keywrod") String keyword, Pageable pageable);
+		
+		// 일반글 작성자 검색
+		@Query(value = "SELECT * FROM board WHERE notice_yn = 'N' and  user_id = (SELECT id FROM user WHERE username = :username) order by createdate desc", nativeQuery = true)
+		Page<Board> findByGeneralUsername(@Param("username") String username, Pageable pageable);
+		
 }

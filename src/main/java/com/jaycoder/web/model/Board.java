@@ -42,6 +42,7 @@ public class Board extends AbstractEntity {
 		@OneToMany(mappedBy = "board2")  // Member 객체와 양방향 관계를 만들기위해 추가한다. (대상테이블)
 		private List<Attach> attachs = new ArrayList<Attach>();		
 		
+		
 		private int hit;
 				
 		@OneToMany(mappedBy = "board" )
@@ -53,6 +54,8 @@ public class Board extends AbstractEntity {
 		private String notice_yn ;
 		
 		private String secret_yn;
+		
+		private Long summernote_id;
 
 		public void addReply() {
 				this.count_of_reply += 1;
